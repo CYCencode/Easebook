@@ -34,9 +34,11 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                 };
 
                 // 將 userPrincipal 設為 WebSocket session 中的用戶身份
+                // accessor.setUser接收principal介面, 包含UsernamePasswordAuthenticationToken
                 accessor.setUser(userPrincipal);
 
                 // 將身份驗證信息存入 SecurityContext
+                // 包含用戶名、密碼以及權限
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(username, null, null);
                 SecurityContextHolder.getContext().setAuthentication(authentication);

@@ -8,51 +8,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
 <body>
-<h2>1-to-1 Chat</h2>
+<h2>Chat Room</h2>
 <input type="text" id="receiver" placeholder="Enter receiver's username"><br>
 <input type="text" id="content" placeholder="Enter your message"><br>
 <button onclick="sendMessage()">Send</button>
+<div id="chatContainer"></div>
 
-<h3>Received Messages:</h3>
-<div id="chatBox"></div>
 
-<script type="text/javascript">
-    let stompClient = null;
 
-    function connect() {
-        const socket = new SockJS('/ws');
-        stompClient = Stomp.over(socket);
-        const username = prompt("Enter your username:"); // User provides their username
-
-        stompClient.connect({ "username": username }, function (frame) {
-            console.log('Connected: ' + frame);
-
-            stompClient.subscribe('/user/queue/reply', function (messageOutput) {
-                // showMessage(JSON.parse(messageOutput.body).message);
-                const message = JSON.parse(messageOutput.body);  // 解析 JSON
-                console.log("Message from: " + message.sender);
-                console.log("Message content: " + message.content);
-
-                showMessage(message.sender + ": " + message.content);  // 顯示消息和發送者
-
-            });
-        });
-    }
-
-    function sendMessage() {
-        const content = document.getElementById('content').value;
-        const receiver = document.getElementById('receiver').value;
-        stompClient.send("/app/chat", {}, JSON.stringify({ 'content': content, 'receiver': receiver }));
-    }
-
-    function showMessage(message) {
-        const chatBox = document.getElementById("chatBox");
-        const newMessage = document.createElement("div");
-        newMessage.appendChild(document.createTextNode(message));
-        chatBox.appendChild(newMessage);
-    }
-
-    connect();
-</script>
+<script src="access/chat.js"></script>
 </body>
 </html>
