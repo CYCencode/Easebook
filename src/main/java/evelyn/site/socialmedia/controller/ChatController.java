@@ -6,6 +6,7 @@ import evelyn.site.socialmedia.model.ChatRequest;
 import evelyn.site.socialmedia.model.ChatRoom;
 import evelyn.site.socialmedia.service.ChatMessageService;
 import evelyn.site.socialmedia.service.ChatRoomService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -17,21 +18,12 @@ import java.util.Optional;
 
 @Log4j2
 @Controller
+@RequiredArgsConstructor
 public class ChatController {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final ChatMessageService chatMessageService;
-    private final ChatRoomRepository chatRoomRepository;
-    public ChatController(SimpMessagingTemplate simpMessagingTemplate, ChatMessageService chatMessageService, ChatRoomService chatRoomService, ChatRoomRepository chatRoomRepository) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
-        this.chatMessageService = chatMessageService;
-        this.chatRoomRepository = chatRoomRepository;
-    }
-
     @MessageMapping("/chat.sendRequest")
     public void sendRequest(@Payload ChatRequest chatRequest, Principal principal) {
-        //String sender = principal.getName();
-        //chatRequest.setSender(sender);
-        // 通知公眾頻道：某人想發起與另一人的聊天，傳遞receiver, chatRoomId資訊
         simpMessagingTemplate.convertAndSend("/chat-room/public", chatRequest);
     }
 

@@ -4,6 +4,7 @@ import evelyn.site.socialmedia.dao.ChatRoomRepository;
 import evelyn.site.socialmedia.model.ChatMessage;
 import evelyn.site.socialmedia.service.ChatMessageService;
 import evelyn.site.socialmedia.service.ChatRoomService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,11 @@ import java.util.List;
 import java.util.Map;
 @Log4j2
 @RestController
+@RequiredArgsConstructor
 public class ChatRoomController {
+    private final ChatRoomService chatRoomService;
+    private final ChatMessageService chatMessageService;
 
-    @Autowired
-    private ChatRoomService chatRoomService;
-    @Autowired
-    private ChatMessageService chatMessageService;
-    @Autowired
-    private ChatRoomRepository chatRoomRepository;
     @GetMapping("/chat/chatRoomExist")
     public ResponseEntity<Map<String, Boolean>> checkChatRoomExist(@RequestParam String chatRoomId) {
         boolean exists = chatRoomService.chatRoomExists(chatRoomId);

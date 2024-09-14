@@ -20,7 +20,7 @@ function connect() {
             if (chatRequest.receiver === currentUser) {
                 const chatRoomId = chatRequest.chatRoomId;
 
-                // 檢查是否已訂閱該聊天室，避免重複訂閱(重複訂閱會怎樣嗎）？
+                // 檢查是否已訂閱該聊天室，避免重複訂閱
                 if (!subscribedChatRooms.has(chatRoomId)) {
                     // 訂閱私人聊天室
                     stompClient.subscribe('/chat-room/' + chatRoomId, function (messageOutput) {
@@ -48,7 +48,6 @@ function sendMessage() {
 
     if (messageContent.trim() !== "") {
         const chatRoomId = generateChatRoomId(currentUser, receiverName);
-        // 有需要另外存一張表紀錄關係嗎？不能直接存到mongoDB?->避免每次都要重新編碼？
         checkChatRoomExist(chatRoomId).then(isExist => {
             if (!isExist) {
                 saveChatRoomId(chatRoomId, receiverName);
