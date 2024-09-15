@@ -1,14 +1,11 @@
 package evelyn.site.socialmedia.service;
 
-import evelyn.site.socialmedia.dao.ChatMessageRepository;
+import evelyn.site.socialmedia.repository.ChatMessageRepository;
 import evelyn.site.socialmedia.model.ChatMessage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

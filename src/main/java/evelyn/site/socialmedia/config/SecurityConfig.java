@@ -14,7 +14,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/ws/**").permitAll() // WebSocket 無需認證
+                        .requestMatchers("/ws/**").permitAll()// WebSocket 無需認證
                         .anyRequest().permitAll() // 允許所有請求
                 )
                 .csrf(csrf -> csrf.disable()); // 禁用 CSRF 防護（WebSocket 通常不需要）

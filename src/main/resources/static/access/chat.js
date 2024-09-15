@@ -19,20 +19,8 @@ function connect() {
             // 確認訊息是發給當前用戶
             if (chatRequest.receiver === currentUser) {
                 const chatRoomId = chatRequest.chatRoomId;
-
-                // 檢查是否已訂閱該聊天室，避免重複訂閱
-                if (!subscribedChatRooms.has(chatRoomId)) {
-                    // 訂閱私人聊天室
-                    stompClient.subscribe('/chat-room/' + chatRoomId, function (messageOutput) {
-                        const privateMessage = JSON.parse(messageOutput.body);
-                        console.log("Message from: " + privateMessage.sender);
-                        showMessage(privateMessage.sender, privateMessage.content, chatRoomId);
-                    });
-                    subscribedChatRooms.add(chatRoomId);
-
-                    // 加載歷史消息
-                    loadChatHistory(chatRoomId);
-                }
+                // 訂閱私人聊天室 ＆ 載入歷史紀錄
+                connectToChatRoom(chatRoomId);
             }
         });
     }, function (error) {
@@ -64,8 +52,6 @@ function sendMessage() {
 
                 // 傳送訊息
                 stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
-
-                // 這裡不再手動顯示自己的訊息，等待 WebSocket 收到訊息後統一處理
                 document.getElementById('content').value = '';
             });
         }).catch(error => {
@@ -79,18 +65,7 @@ function sendMessage() {
 // 訂閱聊天室，確保雙方都已訂閱後再發送訊息
 function subscribeToChatRoom(chatRoomId) {
     return new Promise((resolve, reject) => {
-        // 確認當前用戶是否已訂閱該聊天室
-        if (!subscribedChatRooms.has(chatRoomId)) {
-            stompClient.subscribe('/chat-room/' + chatRoomId, function (messageOutput) {
-                const message = JSON.parse(messageOutput.body);
-                showMessage(message.sender, message.content, chatRoomId);
-            });
-            subscribedChatRooms.add(chatRoomId);
-
-            // 加載歷史聊天記錄
-            loadChatHistory(chatRoomId);
-        }
-
+        connectToChatRoom(chatRoomId);
         // 假設接收方會在收到聊天請求後訂閱聊天室，這裡可以等一小段時間
         setTimeout(() => {
             resolve();
@@ -139,11 +114,8 @@ function saveChatRoomId(chatRoomId, receiverName) {
         })
         .then(data => {
             if (data.chatRoomId) {
-                // 訂閱私人聊天室
+                // 訂閱私人聊天室 ＆ 載入歷史紀錄
                 connectToChatRoom(data.chatRoomId);
-
-                // 加載歷史消息
-                loadChatHistory(data.chatRoomId);
             }
         })
         .catch(error => {
@@ -165,8 +137,6 @@ function connectToChatRoom(chatRoomId) {
         showMessage(message.sender, message.content, chatRoomId);
     });
     subscribedChatRooms.add(chatRoomId);
-
-    // 加載歷史消息，應在訂閱後立即加載
     loadChatHistory(chatRoomId);
 }
 

@@ -1,4 +1,4 @@
-package evelyn.site.socialmedia.dao;
+package evelyn.site.socialmedia.repository;
 
 import evelyn.site.socialmedia.model.ChatMessage;
 import org.springframework.data.mongodb.repository.MongoRepository;
