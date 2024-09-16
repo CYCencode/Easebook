@@ -42,4 +42,5 @@ public class ChatRoomController {
         List<ChatMessage> chatMessages = chatMessageService.getMessagesByChatRoomId(chatRoomId);
         return ResponseEntity.ok(chatMessages);
     }
+
 }

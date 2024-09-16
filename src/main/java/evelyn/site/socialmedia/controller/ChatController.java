@@ -3,11 +3,13 @@ package evelyn.site.socialmedia.controller;
 import evelyn.site.socialmedia.model.ChatMessage;
 import evelyn.site.socialmedia.model.ChatRequest;
 
+import evelyn.site.socialmedia.service.ChatMessageService;
 import evelyn.site.socialmedia.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
@@ -17,7 +19,7 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class ChatController {
     private final ChatService chatService;
-
+    private final ChatMessageService chatMessageService;
     @MessageMapping("/chat.sendRequest")
     public void sendRequest(@Payload ChatRequest chatRequest) {
         chatService.processChatRequest(chatRequest);
@@ -27,7 +29,6 @@ public class ChatController {
     public void sendMessage(@Payload ChatMessage chatMessage, Principal principal) {
         chatService.processChatMessage(chatMessage,principal);
     }
-
 }
 
 

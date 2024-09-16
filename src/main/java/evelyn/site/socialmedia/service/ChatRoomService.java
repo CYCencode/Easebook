@@ -39,3 +39,4 @@ public class ChatRoomService {
         return chatRoomRepository.findByChatRoomId(chatRoomId).isPresent();
     }
 }
+

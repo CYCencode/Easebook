@@ -69,7 +69,7 @@ function subscribeToChatRoom(chatRoomId) {
         // 假設接收方會在收到聊天請求後訂閱聊天室，這裡可以等一小段時間
         setTimeout(() => {
             resolve();
-        }, 500); // 等待訂閱完成
+        }, 500); // 等待訂閱完成: 是否要改成by event
     });
 }
 
