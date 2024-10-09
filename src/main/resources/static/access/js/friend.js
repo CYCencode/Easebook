@@ -227,17 +227,34 @@ function handleFriendAcceptNotification(acceptorInfo) {
 
 
 function initializeFriend() {
-    document.getElementById('friendSearchButton').addEventListener('click', function () {
+    // 點擊搜尋按鈕時，執行搜尋並顯示結果
+    document.getElementById('friendSearchButton').addEventListener('click', function (event) {
+        event.stopPropagation(); // 防止全局點擊事件觸發
         const username = document.getElementById('friendSearchInput').value;
         if (username.trim() !== "") {
             searchFriendUsers(username);
         }
     });
 
-    document.getElementById('friendSearchInput').addEventListener('click', function () {
-        document.getElementById('friendSearchResult').style.display = 'none';
+    // 點擊輸入框時，顯示搜尋結果（如果有內容）
+    document.getElementById('friendSearchInput').addEventListener('focus', function () {
+        const username = this.value.trim();
+        if (username !== "") {
+            document.getElementById('friendSearchResult').style.display = 'block';
+        }
     });
 
+    // 全局監聽點擊事件
+    document.addEventListener('click', function (event) {
+        const searchInput = document.getElementById('friendSearchInput');
+        const searchResult = document.getElementById('friendSearchResult');
+        const searchButton = document.getElementById('friendSearchButton');
+
+        // 如果點擊的地方不是搜尋框、結果列表或按鈕，就隱藏結果
+        if (!searchInput.contains(event.target) && !searchResult.contains(event.target) && !searchButton.contains(event.target)) {
+            searchResult.style.display = 'none'; // 隱藏搜尋結果
+        }
+    });
     // 點擊通知圖標顯示/隱藏通知列表(toggle 切換)
     document.getElementById('notificationIcon').addEventListener('click', function () {
         const notificationList = document.getElementById('notificationList');

@@ -323,10 +323,32 @@ function initializeChat() {
         messageNotificationList.style.display = messageNotificationList.style.display === 'none' ? 'block' : 'none';
     });
 
-    document.getElementById('userSearchButton').addEventListener('click', function () {
+    document.getElementById('userSearchButton').addEventListener('click', function (event) {
+        event.stopPropagation(); // 防止全局點擊事件觸發
         const username = document.getElementById('receiverSearch').value;
         if (username.trim() !== "") {
             searchChatUsers(username);
+        }
+    });
+
+
+    // 點擊輸入框時，顯示搜尋結果（如果有內容）
+    document.getElementById('receiverSearch').addEventListener('focus', function () {
+        const username = this.value.trim();
+        if (username !== "") {
+            document.getElementById('userSearchResult').style.display = 'block';
+        }
+    });
+
+    // 全局監聽點擊事件
+    document.addEventListener('click', function (event) {
+        const searchInput = document.getElementById('receiverSearch');
+        const searchResult = document.getElementById('userSearchResult');
+        const searchButton = document.getElementById('userSearchButton');
+
+        // 如果點擊的地方不是搜尋框、結果列表或按鈕，就隱藏結果
+        if (!searchInput.contains(event.target) && !searchResult.contains(event.target) && !searchButton.contains(event.target)) {
+            searchResult.style.display = 'none'; // 隱藏搜尋結果
         }
     });
 
