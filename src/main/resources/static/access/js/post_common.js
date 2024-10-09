@@ -519,8 +519,29 @@ function createPostActions(post, thumbsCount, commentsCount, isDetailPage = fals
     });
 
     // 留言事件處理
+    // commentInput.addEventListener('keydown', (e) => {
+    //     if (e.key === 'Enter') {
+    //         const commentContent = commentInput.value.trim();
+    //         if (commentContent) {
+    //             submitComment(post.postId, commentContent, commentsCount, commentInput, isDetailPage);
+    //         }
+    //     }
+    // });
+    let isComposing = false;
+
+    // 偵測選字開始
+    commentInput.addEventListener('compositionstart', () => {
+        isComposing = true;  // 進行選字狀態
+    });
+
+    // 偵測選字結束
+    commentInput.addEventListener('compositionend', () => {
+        isComposing = false; // 選字完成
+    });
+
+    // 留言事件處理
     commentInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !isComposing) {
             const commentContent = commentInput.value.trim();
             if (commentContent) {
                 submitComment(post.postId, commentContent, commentsCount, commentInput, isDetailPage);
