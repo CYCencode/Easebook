@@ -1,0 +1,38 @@
+/* profile.css */
+
+:root {
+    --cover-photo-height: 25vh;
+    --profile-photo-size: 120px;
+    --profile-photo-border: 4px;
+}
+
+.cover-photo-container {
+    height: var(--cover-photo-height);
+    overflow: hidden;
+}
+
+.cover-photo-container img {
+    object-fit: cover;
+    height: 100%;
+}
+
+.profile-photo {
+    width: var(--profile-photo-size);
+    height: var(--profile-photo-size);
+    object-fit: cover;
+    border: var(--profile-photo-border) solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    :root {
+        --cover-photo-height: 20vh;
+        --profile-photo-size: 80px;
+        --profile-photo-border: 3px;
+    }
+
+    .col-md-4.text-end {
+        text-align: left !important;
+        margin-top: 1rem;
+    }
+}

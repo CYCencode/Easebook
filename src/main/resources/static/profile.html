@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人資料頁面</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <link href="access/css/post.css" rel="stylesheet">
+    <link href="access/css/profile.css" rel="stylesheet">
+
+</head>
+<body>
+<div class="container-fluid p-0">
+    <!-- Cover Photo -->
+    <div class="cover-photo-container">
+        <img id="coverPhoto" class="img-fluid w-100" alt="封面照片" src="">
+    </div>
+
+    <!-- Profile Info Section -->
+    <div class="container mt-3">
+        <div class="row">
+            <!-- Profile Photo and Name -->
+            <div class="col-md-8 d-flex align-items-center">
+                <img id="currentUserAvatar" class="profile-photo rounded-circle" alt="個人照片" src="">
+                <h2 id="username" class="ms-3"></h2>
+            </div>
+            <!-- Action Buttons -->
+            <div class="col-md-4 text-end">
+                <!-- 回到貼文牆按鈕 -->
+                <button id="backToPostsButton" class="btn btn-primary me-2" onclick="location.href='post.html'">
+                    回貼文牆
+                </button>
+                <button id="editProfileButton" class="btn btn-secondary d-none" onclick="showEditForm()">編輯個人資訊
+                </button>
+            </div>
+        </div>
+
+        <!-- Bio and Posts -->
+        <div class="row mt-4">
+            <!-- Bio and Personal Info -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">簡介</h5>
+                        <p id="userBio" class="card-text"></p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>生日:</strong> <span id="userBirthday"></span></li>
+                            <li class="list-group-item"><strong>位置:</strong> <span id="userLocation"></span></li>
+                            <li class="list-group-item"><strong>信箱:</strong> <span id="userEmail"></span></li>
+                            <li class="list-group-item"><strong>手機:</strong> <span id="userPhone"></span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- User Posts -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">過去的貼文</h5>
+                        <div id="posts">
+                            <!-- Posts will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Form Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">編輯個人資料</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="profileForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="usernameInput" class="form-label">使用者名稱</label>
+                        <input type="text" class="form-control" id="usernameInput" name="username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="bioInput" class="form-label">簡介</label>
+                        <textarea class="form-control" id="bioInput" name="bio" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="birthdayInput" class="form-label">生日</label>
+                        <input type="date" class="form-control" id="birthdayInput" name="birthday">
+                    </div>
+                    <div class="mb-3">
+                        <label for="locationInput" class="form-label">位置</label>
+                        <input type="text" class="form-control" id="locationInput" name="location">
+                    </div>
+                    <div class="mb-3">
+                        <label for="userEmailInput" class="form-label">信箱</label>
+                        <input type="email" class="form-control" id="userEmailInput" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="phoneInput" class="form-label">手機</label>
+                        <input type="tel" class="form-control" id="phoneInput" name="phone">
+                    </div>
+                    <div class="mb-3">
+                        <label for="coverPhotoInput" class="form-label">封面照片</label>
+                        <input type="file" class="form-control" id="coverPhotoInput" name="coverPhoto">
+                    </div>
+                    <div class="mb-3">
+                        <label for="photoInput" class="form-label">個人照片</label>
+                        <input type="file" class="form-control" id="photoInput" name="photo">
+                    </div>
+                    <button type="submit" class="btn btn-primary">更新資料</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="access/js/init.js"></script>
+<script src="access/js/common.js"></script>
+<script src="access/js/post_common.js"></script>
+<script src="access/js/profile.js"></script>
+</body>
+</html>

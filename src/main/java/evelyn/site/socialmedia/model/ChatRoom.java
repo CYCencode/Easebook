@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +14,6 @@ public class ChatRoom {
     private String chatRoomId;
     private String user1;
     private String user2;
-    private LocalDateTime createdAt;
+    private Instant createAt;
 }
 

@@ -1,0 +1,617 @@
+/* post.css */
+/* 貼文區塊 */
+.post-area {
+    width: 64%;
+}
+
+.create-post {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.file-upload {
+    margin-bottom: 10px;
+}
+
+#media {
+    display: none;
+}
+
+.preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.preview-item {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.preview-item img,
+.preview-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.file-upload label {
+    background-color: #f0f2f5;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+    height: 30px;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+#postButton {
+    background-color: #1877f2;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    height: 30px;
+    box-sizing: border-box;
+}
+
+#posts {
+    margin-top: 20px;
+}
+
+.post {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* post header 區設置*/
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 12px 16px;
+}
+
+.post-header-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.post-header-info h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.post-header-info small {
+    font-size: 12px;
+    color: #65676B;
+    line-height: 1.2;
+}
+
+.post .post-header .post-user-avatar, .post-user-info .post-user-avatar, .comment-user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.post-user-info {
+    display: flex;
+    align-items: center;
+}
+
+.post-menu-container {
+    position: relative;
+}
+
+.post-menu-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.post-menu-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    z-index: 1000;
+    min-width: 150px; /* 設置最小寬度 */
+    width: max-content; /* 根據內容自動調整寬度 */
+}
+
+.post-menu-dropdown div {
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.post-menu-dropdown div:hover {
+    background-color: #f0f2f5;
+}
+
+/* 其餘區域 */
+.post-content {
+    padding: 0 16px;
+    margin-right: 12px;
+}
+
+.post-image {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 12px;
+}
+
+.post-actions {
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 16px;
+    border-bottom: 1px solid #E4E6EB;
+}
+
+.post-action-button {
+    background: none;
+    border: none;
+    color: #65676B;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.post-action-button i {
+    margin-right: 6px;
+}
+
+.post p {
+    padding: 0 16px;
+    margin: 12px 0;
+    white-space: pre-wrap;
+}
+
+.post img,
+.post video {
+    max-width: 80%;
+    display: block;
+    margin: 10px auto;
+    border-radius: 4px;
+}
+
+/* for 按讚、留言 */
+.post-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #E4E6EB;
+}
+
+.post-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.like-button {
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #555;
+    transition: color 0.3s ease;
+}
+
+.like-button i {
+    margin-right: 8px;
+}
+
+.like-button:hover {
+    color: #007bff;
+}
+
+.like-button.liked {
+    color: #007bff;
+}
+
+.comment {
+    display: flex;
+    /*justify-content: space-between;*/
+    align-items: flex-start; /* 改為 flex-start 以便垂直對齊頂部 */
+    padding: 10px 0;
+    border-bottom: 1px solid #E4E6EB;
+}
+
+.comment-content {
+    display: flex;
+    align-items: flex-start; /* 改為 flex-start 以便垂直對齊頂部 */
+}
+
+.comment-user-avatar {
+    width: 40px; /* 稍微縮小頭像 */
+    height: 40px;
+    border-radius: 50% !important;
+    object-fit: cover;
+    flex-shrink: 0;
+    margin: 0 !important;
+}
+
+.comment-text {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+}
+
+.comment-text strong {
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+.comment-text span {
+    margin-bottom: 3px;
+}
+
+.comment-text small {
+    color: #65676B;
+}
+
+.delete-comment-button,
+.edit-comment-button {
+    background: none;
+    border: none;
+    color: #65676B;
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+/*原有的留言編輯樣式*/
+.comment-input {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 16px;
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.comment-input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+#seeMoreReply {
+    color: gray;
+}
+
+/* 按讚用戶顯示窗 */
+.thumb-modal {
+    font-family: Arial, sans-serif;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 35vw;
+    padding: 16px;
+    position: fixed;
+    top: 45%;
+    left: 35%;
+}
+
+.thumb-modal h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 18px;
+}
+
+.modal-content {
+    margin-top: 20px;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+}
+
+.user-name {
+    flex-grow: 1;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #f0f2f5;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    margin-top: 16px;
+    cursor: pointer;
+}
+
+/* 貼文詳細頁面模態框 */
+.post-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    z-index: 1000;
+    width: 80%;
+    height: 90%;
+    max-width: 600px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    display: none;
+}
+
+.post-modal .modal-content {
+    padding: 10px 0;
+}
+
+.post-modal .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #555;
+}
+
+.post-modal .close-button:hover {
+    color: #ff4d4d;
+}
+
+.post-modal .post-body {
+    margin-top: 20px;
+}
+
+.post-modal .post-body img,
+.post-modal .post-body video {
+    width: 100%;
+    max-width: 100%;
+    display: block;
+    margin: 10px 0;
+    border-radius: 8px;
+}
+
+.post-modal .post-comments {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+.post-modal .post-comments .comment {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.post-modal .post-comments .comment strong {
+    display: block;
+    font-weight: bold;
+}
+
+.post-modal .post-comments .comment-actions {
+    font-size: 12px;
+    color: #555;
+    margin-top: 5px;
+}
+
+.post-modal .post-comments .comment-actions span {
+    cursor: pointer;
+    margin-right: 10px;
+    color: #007bff;
+}
+
+.post-modal .post-comments .comment-actions span:hover {
+    text-decoration: underline;
+}
+
+/* 編輯貼文模態框 */
+.edit-post-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    z-index: 2000;
+    width: 80%;
+    max-width: 600px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    display: none;
+    transition: opacity 0.3s ease;
+}
+
+.edit-post-modal.show {
+    opacity: 1;
+}
+
+.edit-post-modal .modal-content {
+    padding: 10px 0;
+}
+
+.edit-post-modal .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #555;
+}
+
+.edit-post-modal .close-button:hover {
+    color: #ff4d4d;
+}
+
+.edit-post-modal textarea {
+    width: 100%;
+    height: 100px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    resize: none;
+}
+
+.edit-post-modal .preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.edit-post-modal .preview-item {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.edit-post-modal .preview-item img,
+.edit-post-modal .preview-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.edit-post-modal .remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.edit-post-modal .file-upload label {
+    background-color: #f0f2f5;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+    height: 30px;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+#updatePostButton {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    height: 30px;
+    box-sizing: border-box;
+}
+
+/* 避免貼文編輯區超出頁面 */
+.edit-post-modal .preview-item img,
+.edit-post-modal .preview-item video {
+    width: 100%;
+    height: auto; /* 保持圖片比例 */
+    max-width: 40vw; /* 限制圖片的最大寬度 */
+    max-height: 40vh; /* 限制圖片的最大高度 */
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.edit-post-modal {
+    max-height: 80vh; /* 限制模態框高度為視口的80% */
+    overflow-y: auto; /* 允許捲動內容 */
+}
+
+/*上線好友區塊*/
+/* 上線好友容器樣式 */
+.friends-container {
+    margin-top: 10px;
+}
+
+.friends {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.friends .friend-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.friend-name {
+    font-size: 16px;
+    color: #333;
+}

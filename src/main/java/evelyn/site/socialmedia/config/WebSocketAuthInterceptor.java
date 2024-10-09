@@ -1,5 +1,7 @@
 package evelyn.site.socialmedia.config;
 
+import evelyn.site.socialmedia.security.JwtTokenProvider;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -12,39 +14,38 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
+
 @Log4j2
 @Component
+@RequiredArgsConstructor
 public class WebSocketAuthInterceptor implements ChannelInterceptor {
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        try {
+            if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                String jwtToken = accessor.getFirstNativeHeader("jwt");
+                // 若 jwt 為合法，作為 Principal
+                if (jwtTokenProvider.validateToken(jwtToken)) {
+                    // 創建自定義的 Principal，使用 jwtToken
+                    // 創建 Principal 並設置到 accessor
+                    String userId = (String) jwtTokenProvider.getAllClaimsFromToken(jwtToken).get("id");
+                    //String userId = claims.get("id", String.class);
+                    Principal userPrincipal = () -> userId;
+                    accessor.setUser(userPrincipal);
 
-        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            // 取得用戶名
-            String username = accessor.getFirstNativeHeader("username");
-            log.info("username {}" , username);
-            if (username != null) {
-                // 創建自定義的 Principal
-                Principal userPrincipal = new Principal() {
-                    @Override
-                    public String getName() {
-                        return username;
-                    }
-                };
-
-                // 將 userPrincipal 設為 WebSocket session 中的用戶身份
-                // accessor.setUser接收principal介面, 包含UsernamePasswordAuthenticationToken
-                accessor.setUser(userPrincipal);
-
-                // 將身份驗證信息存入 SecurityContext
-                // 包含用戶名、密碼以及權限
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(username, null, null);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(userId, null, null);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
+        } catch (Exception e) {
+            log.error("Invalid JWT token: {}", e.getMessage());
         }
         return message;
     }
 }
+
 
