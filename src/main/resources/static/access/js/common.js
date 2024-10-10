@@ -142,9 +142,13 @@ function renderComments(comments, container, replyNum = null, postId) {
                 if (editButton.getAttribute('data-editing') === 'true') {
                     // 取消編輯，恢復原始內容
                     commentContentDiv.innerHTML = `
-            <strong>${comment.userName}</strong> <span>${comment.content}</span><br>
-            <small>${timeDiff}</small>
-        `;
+                    <img src="${comment.userPhoto || defaultUserPhoto}" alt="${comment.userName}" class="comment-user-avatar" onclick="window.location.href='/profile.html?userId=${comment.userId}'">
+                    <div class="comment-text">
+                    <strong>${comment.userName}</strong> 
+                    <span>${comment.content}  </span><small>${timeDiff}</small>
+                    </div>
+                `;
+                    
                     // 恢復按鈕文字和狀態
                     editButton.textContent = '編輯';
                     editButton.setAttribute('data-editing', 'false');
