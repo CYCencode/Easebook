@@ -30,7 +30,7 @@ function displayNewMessages() {
         messageItem.innerHTML = `
         <img src="${defaultUserPhoto}" alt="${senderName}" id="avatar-${notification.senderId}" class="user-avatar">
         <div class="message-content">
-            <div class="message-header">
+            <div class="message-header" id="${notification.senderId}">
                 <strong>${senderName}</strong>
                 <span>${truncatedContent}</span>
             </div>

@@ -126,6 +126,11 @@ function connect(isPost) {
                     if (userName) {
                         userName.textContent = username;
                     }
+                    // 更新聊天通知姓名
+                    const chatSenderName = document.querySelector(`.message-header[id="${userId}"]`);
+                    if (chatSenderName) {
+                        chatSenderName.querySelector('strong').textContent = username;
+                    }
                 }
             }
 
@@ -246,6 +251,14 @@ function connect(isPost) {
                     if (chatAvatar) {
                         chatAvatar.src = photoUrl;
                     }
+
+                    // 更新聊天通知大頭照
+                    const chatSender = document.querySelector(`.user-avatar[id="avatar-${userId}"]`);
+                    console.log('chatSender: ', chatSender);
+                    if (chatSender) {
+                        chatSender.src = photoUrl;
+                    }
+
                 }
                 // 不論在主頁、個人頁，好友或本人，都即時更新頁面上評論區資訊
                 const commenterAvatars = document.querySelectorAll(`.comment-content[data-commenter-id="${userId}"]`);

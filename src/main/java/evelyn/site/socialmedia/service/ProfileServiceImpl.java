@@ -4,10 +4,7 @@ import evelyn.site.socialmedia.dto.*;
 import evelyn.site.socialmedia.model.Comment;
 import evelyn.site.socialmedia.model.Post;
 import evelyn.site.socialmedia.model.UserProfile;
-import evelyn.site.socialmedia.repository.FriendRequestRepository;
-import evelyn.site.socialmedia.repository.PostRepository;
-import evelyn.site.socialmedia.repository.UserProfileRepository;
-import evelyn.site.socialmedia.repository.UserRepository;
+import evelyn.site.socialmedia.repository.*;
 import evelyn.site.socialmedia.util.UploadS3Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -28,6 +25,7 @@ import java.util.Set;
 public class ProfileServiceImpl implements ProfileService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final ChatNotifyRepository chatNotifyRepository;
     @Value("${defaultUserPhoto}")
     private String defaultUserPhoto;
     @Value("${defaultCoverPhoto}")
@@ -124,38 +122,40 @@ public class ProfileServiceImpl implements ProfileService {
         log.info("profileRequestDTO getUsername {}", profileRequestDTO.getUsername());
         log.info("name equal : {}", profileRequestDTO.getUsername().equals(userProfile.getUsername()));
         if (!userProfile.getUsername().equals(profileRequestDTO.getUsername())) {
+            String userId = profileRequestDTO.getUserId();
+            String newUserName = profileRequestDTO.getUsername();
             // 更新 users 表
             userRepository.updateName(profileRequestDTO);
             // 查詢post 資訊
-            List<Post> posts = postRepository.findByUserIdAndStatus(profileRequestDTO.getUserId(), "ACTIVE");
+            List<Post> posts = postRepository.findByUserIdAndStatus(userId, "ACTIVE");
             // 更新每個 Post 的 userName
             for (Post post : posts) {
-                post.setUserName(profileRequestDTO.getUsername());
+                post.setUserName(newUserName);
                 notifyService.notifyFriendsOfPostUpdate(convertToResponseDTO(post));
             }
             // 保存所有更新過的 Post
             postRepository.saveAll(posts);
             // 查詢自己的評論紀錄，更新 userName
-            List<Post> postsWithComments = postRepository.findPostsByCommenterId(profileRequestDTO.getUserId());
+            List<Post> postsWithComments = postRepository.findPostsByCommenterId(userId);
             for (Post post : postsWithComments) {
                 List<Comment> comments = post.getComments();
                 for (Comment comment : comments) {
-                    if (comment.getUserId().equals(profileRequestDTO.getUserId())) {
+                    if (comment.getUserId().equals(userId)) {
                         // 更新評論名稱
-                        comment.setUserName(profileRequestDTO.getUsername());
+                        comment.setUserName(newUserName);
                     }
                 }
             }
             postRepository.saveAll(postsWithComments);
             // 查詢自己的按讚紀錄，更新 userName
-            List<Post> postsWithThumbs = postRepository.findPostsByThumberId(profileRequestDTO.getUserId());
+            List<Post> postsWithThumbs = postRepository.findPostsByThumberId(userId);
             for (Post post : postsWithThumbs) {
                 Set<ThumbUserDTO> thumbUsers = post.getThumbUsers();
                 if (thumbUsers != null) {
                     for (ThumbUserDTO thumbUser : thumbUsers) {
-                        if (thumbUser.getUserId().equals(profileRequestDTO.getUserId())) {
+                        if (thumbUser.getUserId().equals(userId)) {
                             // 更新按讚者的名稱
-                            thumbUser.setUserName(profileRequestDTO.getUsername());
+                            thumbUser.setUserName(newUserName);
                         }
                     }
                 }
@@ -163,20 +163,22 @@ public class ProfileServiceImpl implements ProfileService {
             postRepository.saveAll(postsWithThumbs);
 
             // 查詢自己的好友邀請紀錄，更新 userName
-            Optional<List<String>> receiverIds = friendRequestRepository.updateFriendRequestUserName(profileRequestDTO.getUserId(), profileRequestDTO.getUsername());
+            Optional<List<String>> receiverIds = friendRequestRepository.updateFriendRequestUserName(userId, newUserName);
             log.info("update profile name : friend request receiverIds {}", receiverIds);
             // 通知所有對應的好友（使用 WebSocket）
             receiverIds.ifPresent(receivers -> receivers.forEach(receiverId -> {
                 FriendRequestDTO friendRequestDTO = FriendRequestDTO.builder()
-                        .senderId(profileRequestDTO.getUserId())
-                        .senderName(profileRequestDTO.getUsername())
+                        .senderId(userId)
+                        .senderName(newUserName)
                         .receiverId(receiverId)
                         .build();
                 notifyService.notifyFriendRequestUpdate(receiverId, friendRequestDTO);
             }));
+            // 查詢訊息紀錄，更新 senderName
+            chatNotifyRepository.updateSenderNameBySenderId(userId, newUserName);
 
             // 即時通知 websocket 更新個人名稱
-            notifyService.notifyOfNameUpdate(profileRequestDTO.getUserId(), profileRequestDTO.getUsername());
+            notifyService.notifyOfNameUpdate(userId, newUserName);
 
         }
         userProfile.setUsername(profileRequestDTO.getUsername());
