@@ -614,73 +614,77 @@ function showThumbUsers(postId, thumbsCount) {
     }
 }
 
-function likePost(postId, currentUserId, thumbsCountElement) {
+async function likePost(postId, currentUserId, thumbsCountElement) {
     if (checkJwtToken()) {
-        fetchWithJwt(`/api/posts/${postId}/thumb`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                userId: currentUserId,
-                userName: localStorage.getItem('currentUser'),
-                avatarUrl: document.getElementById('currentUserAvatar').src
-            })
-        })
-            .then(response => response.json())
-            .then(updatedPost => {
-                thumbsCountElement.textContent = `${updatedPost.thumbsCount}個讚`;
-                stompClient.send(`/app/notify/thumb/update`, {}, JSON.stringify(updatedPost));
-            })
-            .catch(error => {
-                if (error.status === 401) {
-                    // JWT token 可能無效或過期，重導到登入頁面
-                    redirectToLogin();
-                } else {
-                    console.error('Error:', error);
-                }
+        const thumbInfo = {
+            userId: currentUserId,
+            userName: localStorage.getItem('currentUser'),
+            avatarUrl: ''
+        };
+        try {
+            // 以await 確保avatarUrl被載入
+            const avatarUrl = await loadUserAvatar(currentUserId);
+            thumbInfo.avatarUrl = avatarUrl || defaultUserPhoto;
+
+            const response = await fetchWithJwt(`/api/posts/${postId}/thumb`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json',},
+                body: JSON.stringify(thumbInfo)
             });
+            const updatedPost = await response.json();
+            thumbsCountElement.textContent = `${updatedPost.thumbsCount}個讚`;
+            stompClient.send(`/app/notify/thumb/update`, {}, JSON.stringify(updatedPost));
+        } catch (error) {
+            if (error.status === 401) {
+                // JWT token 可能無效或過期，重導到登入頁面
+                redirectToLogin();
+
+            } else {
+                console.error('Error:', error);
+            }
+        }
     } else {
         // 沒有 JWT token，重導到登入頁面
         redirectToLogin();
     }
 }
 
-function submitComment(postId, commentContent, commentsCountElement, commentInputElement, isDetailPage = false) {
+async function submitComment(postId, commentContent, commentsCountElement, commentInputElement, isDetailPage = false) {
     if (checkJwtToken()) {
-        fetchWithJwt(`/api/posts/${postId}/comments`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                userId: currentUserId,
-                userName: localStorage.getItem('currentUser'),
-                content: commentContent,
-                createAt: getCurrentUTCTime(),
-                userPhoto: document.getElementById('currentUserAvatar').src
-            })
-        })
-            .then(response => response.json())
-            .then(updatedPost => {
-                // 更新留言數顯示
-                commentsCountElement.textContent = `${updatedPost.replyCount}個留言`;
-                commentInputElement.value = '';
-                // 如果是在詳細頁面，將新的留言動態添加到留言區
-                if (isDetailPage) {
-                    const postComments = document.querySelector('.post-comments');
-                    renderComments(updatedPost.comments, postComments);
-                }
-                stompClient.send(`/app/notify/comment/update`, {}, JSON.stringify(updatedPost));
-            })
-            .catch(error => {
-                if (error.status === 401) {
-                    // JWT token 可能無效或過期，重導到登入頁面
-                    redirectToLogin();
-                } else {
-                    console.error('Error:', error);
-                }
+        const commentInfo = {
+            userId: currentUserId,
+            userName: localStorage.getItem('currentUser'),
+            content: commentContent,
+            createAt: getCurrentUTCTime(),
+            userPhoto: ''
+        };
+        try {
+            // 以await 確保avatarUrl被載入
+            const userPhoto = await loadUserAvatar(currentUserId);
+            commentInfo.userPhoto = userPhoto || defaultUserPhoto;
+
+            const response = await fetchWithJwt(`/api/posts/${postId}/comments`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json',},
+                body: JSON.stringify(commentInfo)
             });
+            const updatedPost = await response.json();
+            commentsCountElement.textContent = `${updatedPost.replyCount}個留言`;
+            commentInputElement.value = '';
+            // 如果是在詳細頁面，將新的留言動態添加到留言區
+            if (isDetailPage) {
+                const postComments = document.querySelector('.post-comments');
+                renderComments(updatedPost.comments, postComments);
+            }
+            stompClient.send(`/app/notify/comment/update`, {}, JSON.stringify(updatedPost));
+        } catch (error) {
+            if (error.status === 401) {
+                // JWT token 可能無效或過期，重導到登入頁面
+                redirectToLogin();
+            } else {
+                console.error('Error:', error);
+            }
+        }
     } else {
         // 沒有 JWT token，重導到登入頁面
         redirectToLogin();

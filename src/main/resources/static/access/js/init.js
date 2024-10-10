@@ -228,6 +228,12 @@ function connect(isPost) {
             stompClient.subscribe(`/user/queue/notify/message`, function (messageOutput) {
                 const message = JSON.parse(messageOutput.body);
                 console.log('message chatroom, ' + message.chatRoomId);
+                // 檢查是否已經存在該 sender 的通知
+                const existMessageNotification = document.getElementById('messageNotificationList').querySelector(`.message-header[id="${message.senderId}"]`);
+                if (existMessageNotification) {
+                    existMessageNotification.querySelector('strong').textContent = message.senderName;
+                    return;
+                }
                 displayChatNotify(message);
             });
             // 用戶大頭照更新
