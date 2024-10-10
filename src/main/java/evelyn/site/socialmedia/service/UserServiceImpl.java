@@ -31,6 +31,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<FriendDTO> findFriendsByName(String username, String currentUserId) {
+        List<FriendDTO> friends = friendRepository.getFriendInfoByUserId(username, currentUserId);
+        log.info("friends: {}", friends);
+        return friends;
+    }
+
+    @Override
     // 分成兩階段，找好友＆找profile
     public List<UserProfile> findFriendByUserId(String userId) {
         List<FriendDTO> friends = friendRepository.getFriendByUserId(userId);

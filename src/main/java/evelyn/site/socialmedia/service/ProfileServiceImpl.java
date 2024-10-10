@@ -176,6 +176,7 @@ public class ProfileServiceImpl implements ProfileService {
             }));
             // 查詢訊息紀錄，更新 senderName
             chatNotifyRepository.updateSenderNameBySenderId(userId, newUserName);
+            // 通知所有對應的好友（使用 WebSocket）
 
             // 即時通知 websocket 更新個人名稱
             notifyService.notifyOfNameUpdate(userId, newUserName);

@@ -1,9 +1,6 @@
 package evelyn.site.socialmedia.controller;
 
-import evelyn.site.socialmedia.dto.JwtDTO;
-import evelyn.site.socialmedia.dto.LoginRequestDTO;
-import evelyn.site.socialmedia.dto.SignupRequestDTO;
-import evelyn.site.socialmedia.dto.UserDTO;
+import evelyn.site.socialmedia.dto.*;
 import evelyn.site.socialmedia.exception.EmailAlreadyExistsException;
 import evelyn.site.socialmedia.exception.InvalidUserException;
 import evelyn.site.socialmedia.exception.ServerException;
@@ -53,6 +50,13 @@ public class UserController {
                                                      @RequestParam String currentUserId) {
         List<UserDTO> users = userService.findUsersByName(username, currentUserId);
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/search/friends")
+    public ResponseEntity<List<FriendDTO>> searchFriends(@RequestParam String username,
+                                                         @RequestParam String currentUserId) {
+        List<FriendDTO> friends = userService.findFriendsByName(username, currentUserId);
+        return ResponseEntity.ok(friends);
     }
 
     @PostMapping("/signup")

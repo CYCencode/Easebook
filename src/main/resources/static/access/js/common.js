@@ -8,6 +8,12 @@ function fetchUsers(username, currentUserId) {
         .catch(error => console.error('Error fetching users:', error));
 }
 
+function fetchFriends(username, currnetUserId) {
+    return fetch(`/api/users/search/friends?username=${username}&currentUserId=${currentUserId}`)
+        .then(response => response.json())
+        .catch(error => console.error('Error fetching users:', error));
+}
+
 /* 刪除、更新評論後，以從資料庫獲得的資訊更新畫面 */
 function handleCommentUpdate(updatedPost) {
     // 查找畫面上是否存在該貼文
@@ -148,7 +154,7 @@ function renderComments(comments, container, replyNum = null, postId) {
                     <span>${comment.content}  </span><small>${timeDiff}</small>
                     </div>
                 `;
-                    
+
                     // 恢復按鈕文字和狀態
                     editButton.textContent = '編輯';
                     editButton.setAttribute('data-editing', 'false');

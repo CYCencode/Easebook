@@ -98,7 +98,7 @@ function updateMessageNotificationCount() {
 
 // 搜尋聊天用戶
 function searchChatUsers(username) {
-    fetchUsers(username, currentUserId).then(users => {
+    fetchFriends(username, currentUserId).then(users => {
         displayChatSearchResult(users);
     });
 }
@@ -111,16 +111,16 @@ function displayChatSearchResult(users) {
         users.forEach(user => {
             const userDiv = document.createElement('div');
             userDiv.classList.add('user-result-block');
-            userDiv.setAttribute('data-user-id', user.id);
-            userDiv.setAttribute('data-user-name', user.name);
+            userDiv.setAttribute('data-user-id', user.friendId);
+            userDiv.setAttribute('data-user-name', user.friendName);
             userDiv.innerHTML = `
-                <img src="${defaultUserPhoto}" alt="${user.name}'s avatar" class="user-avatar" id="avatar-${user.id}">
-                <span>${user.name}</span>
+                <img src="${defaultUserPhoto}" alt="${user.friendName}'s avatar" class="user-avatar" id="avatar-${user.friendId}">
+                <span>${user.friendName}</span>
             `;
             searchResultDiv.appendChild(userDiv);
             // 非同步載入用戶大頭照
-            loadUserAvatar(user.id).then(avatarUrl => {
-                const avatarImg = document.getElementById(`avatar-${user.id}`);
+            loadUserAvatar(user.friendId).then(avatarUrl => {
+                const avatarImg = document.getElementById(`avatar-${user.friendId}`);
                 avatarImg.src = avatarUrl || defaultUserPhoto;
             });
         });

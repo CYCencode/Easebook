@@ -13,11 +13,12 @@ import java.util.List;
 @Log4j2
 @Repository
 @RequiredArgsConstructor
-public class FriendRepositoryImpl implements  FriendRepository{
+public class FriendRepositoryImpl implements FriendRepository {
     private final NamedParameterJdbcTemplate template;
+
     @Override
-    public List<FriendDTO> getFriendByUserId (String userId){
-        log.info("getFriendByUserId: {}",userId);
+    public List<FriendDTO> getFriendByUserId(String userId) {
+        log.info("getFriendByUserId: {}", userId);
         String sql = """
                 SELECT u.name AS friend_name,
                 CASE
@@ -33,6 +34,29 @@ public class FriendRepositoryImpl implements  FriendRepository{
                 WHERE (f.user_1 = :userId OR f.user_2 = :userId);
                 """;
         MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        return template.query(sql, params, new FriendDTORowMapper());
+    }
+
+    @Override
+    public List<FriendDTO> getFriendInfoByUserId(String username, String userId) {
+        String sql = """
+                SELECT u.name AS friend_name,
+                CASE
+                         WHEN f.user_1 =:userId THEN f.user_2
+                         ELSE f.user_1
+                       END AS friend_id
+                FROM friendship f
+                JOIN users u
+                ON u.id = CASE
+                WHEN f.user_1 =:userId THEN f.user_2
+                ELSE f.user_1
+                END
+                WHERE (f.user_1 = :userId OR f.user_2 = :userId)
+                AND u.name LIKE :friendName;
+                """;
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        params.addValue("friendName", "%" + username + "%");
         return template.query(sql, params, new FriendDTORowMapper());
     }
 
