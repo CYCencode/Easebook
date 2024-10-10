@@ -50,7 +50,7 @@ public class NotifyServiceImpl implements NotifyService {
         Map<String, String> updateInfo = new HashMap<>();
         updateInfo.put("userId", userId);
         updateInfo.put("photoUrl", photoUrl);
-
+        log.info("notify photo update userId {} : {}", userId, updateInfo);
         // 自己本人頁面上的資訊更新
         messagingTemplate.convertAndSendToUser(userId, "/queue/notify/user/photo/update", updateInfo);
 

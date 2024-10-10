@@ -218,34 +218,18 @@ function connect(isPost) {
             console.log('delete post ', post);
             removePost(post);
         })
-        if (isPost) {
-            // 訂閱接收已成立為好友, 更新好友圈、貼文
-            stompClient.subscribe(`/user/queue/notify/friend/accept`, function (messageOutput) {
-                const friendAcceptDTO = JSON.parse(messageOutput.body);
-                handleFriendAcceptNotification(friendAcceptDTO);
-            });
-            // 訂閱接收者的訊息同步頻道 (聊天訊息)
-            stompClient.subscribe(`/user/queue/notify/message`, function (messageOutput) {
-                const message = JSON.parse(messageOutput.body);
-                console.log('message chatroom, ' + message.chatRoomId);
-                // 檢查是否已經存在該 sender 的通知
-                const existMessageNotification = document.getElementById('messageNotificationList').querySelector(`.message-header[id="${message.senderId}"]`);
-                if (existMessageNotification) {
-                    existMessageNotification.querySelector('strong').textContent = message.senderName;
-                    return;
-                }
-                displayChatNotify(message);
-            });
-            // 用戶大頭照更新
-            stompClient.subscribe(`/user/queue/notify/user/photo/update`, function (photoOutput) {
-                const updateInfo = JSON.parse(photoOutput.body);
-                const userId = updateInfo.userId;
-                const photoUrl = updateInfo.photoUrl;
-                // 判斷是否是當前用戶本人
-                if (userId === currentUserId) {
-                    // 如果是自己，更新自己的大頭照
-                    document.getElementById('currentUserAvatar').src = photoUrl;
-                } else {
+        // 用戶大頭照更新
+        stompClient.subscribe(`/user/queue/notify/user/photo/update`, function (photoOutput) {
+            const updateInfo = JSON.parse(photoOutput.body);
+            console.log('/photo/update : ', updateInfo)
+            const userId = updateInfo.userId;
+            const photoUrl = updateInfo.photoUrl;
+            // 判斷是否是當前用戶本人
+            if (userId === currentUserId) {
+                // 如果是自己，更新自己的大頭照
+                document.getElementById('currentUserAvatar').src = photoUrl;
+            } else {
+                if (isPost) {
                     // 如果不是自己，更新好友圈中的大頭照
                     const friendDiv = document.querySelector(`.friends[data-user-id="${userId}"]`);
                     if (friendDiv) {
@@ -264,16 +248,34 @@ function connect(isPost) {
                     if (chatSender) {
                         chatSender.src = photoUrl;
                     }
-
                 }
-                // 不論在主頁、個人頁，好友或本人，都即時更新頁面上評論區資訊
-                const commenterAvatars = document.querySelectorAll(`.comment-content[data-commenter-id="${userId}"]`);
-                if (commenterAvatars) {
-                    commenterAvatars.forEach(commenterAvatar => {
-                        const commenter = commenterAvatar.querySelector('.comment-user-avatar');
-                        commenter.src = photoUrl;
-                    });
+            }
+            // 不論在主頁、個人頁，好友或本人，都即時更新頁面上評論區資訊
+            const commenterAvatars = document.querySelectorAll(`.comment-content[data-commenter-id="${userId}"]`);
+            if (commenterAvatars) {
+                commenterAvatars.forEach(commenterAvatar => {
+                    const commenter = commenterAvatar.querySelector('.comment-user-avatar');
+                    commenter.src = photoUrl;
+                });
+            }
+        });
+        if (isPost) {
+            // 訂閱接收已成立為好友, 更新好友圈、貼文
+            stompClient.subscribe(`/user/queue/notify/friend/accept`, function (messageOutput) {
+                const friendAcceptDTO = JSON.parse(messageOutput.body);
+                handleFriendAcceptNotification(friendAcceptDTO);
+            });
+            // 訂閱接收者的訊息同步頻道 (聊天訊息)
+            stompClient.subscribe(`/user/queue/notify/message`, function (messageOutput) {
+                const message = JSON.parse(messageOutput.body);
+                console.log('message chatroom, ' + message.chatRoomId);
+                // 檢查是否已經存在該 sender 的通知
+                const existMessageNotification = document.getElementById('messageNotificationList').querySelector(`.message-header[id="${message.senderId}"]`);
+                if (existMessageNotification) {
+                    existMessageNotification.querySelector('strong').textContent = message.senderName;
+                    return;
                 }
+                displayChatNotify(message);
             });
             // 訂閱好友邀請
             stompClient.subscribe(`/user/queue/notify/friend`, function (friendOutput) {

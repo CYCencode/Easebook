@@ -73,6 +73,8 @@ public class ProfileServiceImpl implements ProfileService {
                 // 將post 轉 postResponseDTO，傳給前端更新貼文顯示
                 notifyService.notifyFriendsOfPostUpdate(convertToResponseDTO(post));
             }
+            // 保存所有更新過的 Post
+            postRepository.saveAll(posts);
             // 查詢自己的按讚紀錄，更新大頭照
             List<Post> postsWithThumbs = postRepository.findPostsByThumberId(profileRequestDTO.getUserId());
             for (Post post : postsWithThumbs) {
@@ -89,15 +91,20 @@ public class ProfileServiceImpl implements ProfileService {
             postRepository.saveAll(postsWithThumbs);
             // 查詢自己的評論紀錄，更新大頭照
             List<Post> postsWithComments = postRepository.findPostsByCommenterId(profileRequestDTO.getUserId());
+
             for (Post post : postsWithComments) {
                 List<Comment> comments = post.getComments();
                 for (Comment comment : comments) {
                     if (comment.getUserId().equals(profileRequestDTO.getUserId())) {
                         comment.setUserPhoto(photoUrl);
+                        log.info("comment url is {}", comment.getUserPhoto());
                     }
                 }
+                post.setComments(comments);
+                log.info("update post.getComments() {}", post.getComments());
             }
             postRepository.saveAll(postsWithComments);
+            log.info("postsWithComments {}", postsWithComments);
 
             // 查詢自己的好友邀請紀錄，更新大頭照
             Optional<List<String>> receiverIds = friendRequestRepository.findFriendRequestReceiverIdBySenderId(profileRequestDTO.getUserId());
@@ -112,11 +119,8 @@ public class ProfileServiceImpl implements ProfileService {
                         .build();
                 notifyService.notifyFriendRequestUpdate(receiverId, friendRequestDTO);
             }));
-
             // 即時通知 websocket 更新個人大頭照
             notifyService.notifyOfPhotoUpdate(profileRequestDTO.getUserId(), photoUrl);
-            // 保存所有更新過的 Post
-            postRepository.saveAll(posts);
         }
         // 如果使用者名稱變更，需要更新過去的貼文資訊
         log.info("profileRequestDTO getUsername {}", profileRequestDTO.getUsername());
@@ -176,8 +180,6 @@ public class ProfileServiceImpl implements ProfileService {
             }));
             // 查詢訊息紀錄，更新 senderName
             chatNotifyRepository.updateSenderNameBySenderId(userId, newUserName);
-            // 通知所有對應的好友（使用 WebSocket）
-
             // 即時通知 websocket 更新個人名稱
             notifyService.notifyOfNameUpdate(userId, newUserName);
 
