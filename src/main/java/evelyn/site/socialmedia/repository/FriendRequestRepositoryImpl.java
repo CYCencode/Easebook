@@ -71,6 +71,22 @@ public class FriendRequestRepositoryImpl implements FriendRequestRepository {
     }
 
     @Override
+    public Optional<List<String>> findFriendRequestReceiverIdBySenderId(String userId) {
+        // 查詢所有與 userId 是 sender 的記錄，返回 receiver_id
+        String selectSql = "SELECT receiver_id FROM friend_request " +
+                "WHERE sender_id = :userId AND status = :status";
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+        params.addValue("status", FriendStatusCode.PENDING.getCode());
+
+        // 查詢對應的 receiver_id
+        List<String> receiverIds = namedParameterJdbcTemplate.queryForList(selectSql, params, String.class);
+        // 如果有符合條件的 receiver_id，則返回
+        return receiverIds.isEmpty() ? Optional.empty() : Optional.of(receiverIds);
+    }
+
+    @Override
     public Optional<List<String>> updateFriendRequestUserName(String userId, String newName) {
         // 查詢所有與 userId 是 sender 的記錄，返回 receiver_id
         String selectSql = "SELECT receiver_id FROM friend_request " +

@@ -268,6 +268,10 @@ function connect(isPost) {
                     // 更新 sender 名字
                     const senderSpan = existingNotification.querySelector('span');
                     senderSpan.textContent = `${friendRequestDTO.senderName} 送出了好友邀請`;
+                    // 更新 senderAvatar
+                    if (friendRequestDTO.senderAvatar) {
+                        existingNotification.querySelector('.user-avatar').src = friendRequestDTO.senderAvatar;
+                    }
                     return;
                 }
                 // 若不存在就調用 friend.js 中的 addNotification 函數來處理通知

@@ -15,4 +15,6 @@ public interface FriendRequestRepository {
     void confirmFriendRequest(String id);
 
     Optional<List<String>> updateFriendRequestUserName(String userId, String newName);
+
+    Optional<List<String>> findFriendRequestReceiverIdBySenderId(String userId);
 }

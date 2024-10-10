@@ -101,6 +101,20 @@ public class ProfileServiceImpl implements ProfileService {
             }
             postRepository.saveAll(postsWithComments);
 
+            // 查詢自己的好友邀請紀錄，更新大頭照
+            Optional<List<String>> receiverIds = friendRequestRepository.findFriendRequestReceiverIdBySenderId(profileRequestDTO.getUserId());
+            log.info("update profile name : friend request receiverIds {}", receiverIds);
+            // 通知所有對應的好友（使用 WebSocket）
+            receiverIds.ifPresent(receivers -> receivers.forEach(receiverId -> {
+                FriendRequestDTO friendRequestDTO = FriendRequestDTO.builder()
+                        .senderId(profileRequestDTO.getUserId())
+                        .senderName(profileRequestDTO.getUsername())
+                        .senderAvatar(photoUrl)
+                        .receiverId(receiverId)
+                        .build();
+                notifyService.notifyFriendRequestUpdate(receiverId, friendRequestDTO);
+            }));
+
             // 即時通知 websocket 更新個人大頭照
             notifyService.notifyOfPhotoUpdate(profileRequestDTO.getUserId(), photoUrl);
             // 保存所有更新過的 Post
