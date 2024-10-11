@@ -580,9 +580,9 @@
 .edit-post-modal .preview-item img,
 .edit-post-modal .preview-item video {
     width: 100%;
-    height: auto; /* 保持圖片比例 */
-    max-width: 40vw; /* 限制圖片的最大寬度 */
-    max-height: 40vh; /* 限制圖片的最大高度 */
+    /*height: auto; !* 保持圖片比例 *!*/
+    /*max-width: 40vw; !* 限制圖片的最大寬度 *!*/
+    /*max-height: 40vh; !* 限制圖片的最大高度 *!*/
     object-fit: cover;
     border-radius: 4px;
 }
