@@ -22,13 +22,18 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostResponseDTO> createPost(@ModelAttribute PostRequestDTO postRequestDTO) {
+    public ResponseEntity<?> createPost(@ModelAttribute PostRequestDTO postRequestDTO) {
         try {
+            // 1. check if content, file are valid
+            postService.validatePost(postRequestDTO);
             log.info("get PostRequestDTO {}", postRequestDTO);
+            // 2. create post
             PostResponseDTO createdPost = postService.createPost(postRequestDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("資料上傳失敗，請稍後再試");
         }
     }
 

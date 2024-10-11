@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface PostService {
+    void validatePost(PostRequestDTO postRequestDTO);
+
     PostResponseDTO createPost(PostRequestDTO postRequestDTO) throws IOException;
 
     PostResponseDTO updatePost(String postId, UpdatePostRequestDTO updatePostRequestDTO) throws IOException;

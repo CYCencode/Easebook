@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
@@ -31,6 +32,31 @@ public class PostServiceImpl implements PostService {
     private final FriendRepository friendRepository;
     private final S3Service s3Service;
     private final UploadS3Util uploadS3Util;
+
+    @Override
+    public void validatePost(PostRequestDTO postRequestDTO) {
+        // 檢查文字長度
+        if (postRequestDTO.getContent().length() > 1000) {
+            throw new IllegalArgumentException("文字長度不可超過1000字");
+        }
+
+        // 檢查圖片和影片數量
+        if (postRequestDTO.getImages().size() > 3 || postRequestDTO.getVideos().size() > 3) {
+            throw new IllegalArgumentException("最多只能上傳3張圖片或影片");
+        }
+
+        // 檢查圖片和影片大小
+        for (MultipartFile image : postRequestDTO.getImages()) {
+            if (image.getSize() > 2 * 1024 * 1024) { // 2MB
+                throw new IllegalArgumentException("圖片大小不可超過2MB");
+            }
+        }
+        for (MultipartFile video : postRequestDTO.getVideos()) {
+            if (video.getSize() > 2 * 1024 * 1024) {
+                throw new IllegalArgumentException("影片大小不可超過2MB");
+            }
+        }
+    }
 
     @Override
     public PostResponseDTO createPost(PostRequestDTO postRequestDTO) throws IOException {
