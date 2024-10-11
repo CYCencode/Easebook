@@ -82,6 +82,17 @@ function initializePosts() {
         const previewContainer = document.getElementById('previewContainer'); // 對應預覽區域
         handleFiles(event.target.files, previewContainer); // 傳遞預覽區域
     });
+    // 監聽字數
+    document.getElementById('postContent').addEventListener('input', function () {
+        const content = this.value;
+        const charCount = document.getElementById('charCount');
+        charCount.textContent = `${content.length}/1000`;
+        if (content.length > 1000) {
+            // 顯示錯誤訊息
+            alert("貼文字數長度不可超過1000字");
+        }
+    });
+
 
     // 發佈按鈕的處理
     document.getElementById('postButton').addEventListener('click', function () {

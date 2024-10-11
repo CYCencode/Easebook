@@ -119,13 +119,22 @@ body {
 }
 
 .notification-count {
+    /*position: absolute;*/
+    /*top: -5px;*/
+    /*right: -5px;*/
+    /*background-color: #fa3e3e;*/
+    /*font-size: 11px;*/
+    /*padding: 2px 5px;*/
+    /*border-radius: 50%;*/
+
     position: absolute;
     top: -5px;
     right: -5px;
-    background-color: #fa3e3e;
-    font-size: 11px;
-    padding: 2px 5px;
-    border-radius: 50%;
+    background-color: #ff6f6f;
+    font-size: 10px;
+    color: #303030;
+    padding: 0.5px 4px;
+    border-radius: 30%;
 }
 
 /* 主要內容區域 */

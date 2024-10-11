@@ -39,7 +39,8 @@
     <div class="post-area">
         <form id="postForm" enctype="multipart/form-data">
             <div class="create-post">
-                <textarea id="postContent" placeholder="發表你的想法..."></textarea>
+                <textarea id="postContent" placeholder="發表你的想法..." maxlength="1000"></textarea>
+                <div id="charCount">0/1000</div>
                 <div class="file-upload">
                     <label for="media">新增相片 / 影片</label>
                     <input type="file" id="media" accept="image/*, video/*" multiple>
