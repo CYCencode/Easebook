@@ -1,8 +1,78 @@
 //post_common.js
+// let imageFileList = [];
+// let videoFileList = [];
+//
+// function handleFiles(files, previewContainer) {
+//     Array.from(files).forEach((file, index) => {
+//         const previewItem = document.createElement('div');
+//         previewItem.classList.add('preview-item');
+//
+//         let element;
+//         if (file.type.startsWith('image/')) {
+//             element = document.createElement('img');
+//             element.src = URL.createObjectURL(file);
+//             imageFileList.push(file);  // 把圖片檔案推到 imageFileList
+//             console.log('imageFileList push :', imageFileList)
+//         } else if (file.type.startsWith('video/')) {
+//             element = document.createElement('video');
+//             element.src = URL.createObjectURL(file);
+//             element.controls = true;
+//             videoFileList.push(file);  // 把影片檔案推到 videoFileList
+//         }
+//
+//         // 生成右上角的 "叉叉" 刪除按鈕
+//         const removeBtn = document.createElement('button');
+//         removeBtn.classList.add('remove-btn');
+//         removeBtn.innerHTML = '&times;';  // 顯示叉叉符號
+//
+//         // 設置叉叉按鈕的點擊事件來移除對應的圖片或影片
+//         removeBtn.addEventListener('click', () => {
+//             previewItem.remove();  // 移除該項目的預覽
+//
+//             // 從 fileList 中移除對應的檔案
+//             if (file.type.startsWith('image/')) {
+//                 imageFileList = imageFileList.filter((_, i) => i !== index);  // 正確地移除圖片
+//                 resetFileInput('media');  // 重置圖片或影片上傳
+//                 console.log('imageFileList reset :', imageFileList);
+//             } else if (file.type.startsWith('video/')) {
+//                 videoFileList = videoFileList.filter((_, i) => i !== index);  // 正確地移除影片
+//                 resetFileInput('media');  // 重置圖片或影片上傳
+//             }
+//         });
+//
+//         previewItem.appendChild(element);
+//         previewItem.appendChild(removeBtn);
+//         previewContainer.appendChild(previewItem);
+//     });
+// }
+//
+//
+// // 重置 input file 元素，允許再次上傳
+// function resetFileInput(id) {
+//     const input = document.getElementById(id);
+//     input.value = '';  // 重置 input 的值，允許重新選擇相同檔案
+// }
 let imageFileList = [];
 let videoFileList = [];
 
 function handleFiles(files, previewContainer) {
+    // 檢查檔案大小、數量
+    const maxFileSize = 2 * 1024 * 1024; // 2MB
+    const maxFiles = 3;
+
+    const totalFiles = imageFileList.length + videoFileList.length + files.length
+    if (totalFiles > maxFiles) {
+        alert('一則貼文最多上傳3個檔案');
+        return;
+    }
+    for (let i = 0; i < files.length; i++) {
+        if (files[i].size > maxFileSize) {
+            alert('檔案大小不得超過2MB');
+            return;
+        }
+    }
+
+    // 檔案預覽
     Array.from(files).forEach((file, index) => {
         const previewItem = document.createElement('div');
         previewItem.classList.add('preview-item');
@@ -32,12 +102,11 @@ function handleFiles(files, previewContainer) {
             // 從 fileList 中移除對應的檔案
             if (file.type.startsWith('image/')) {
                 imageFileList = imageFileList.filter((_, i) => i !== index);  // 正確地移除圖片
-                resetFileInput('media');  // 重置圖片或影片上傳
-                console.log('imageFileList reset :', imageFileList);
             } else if (file.type.startsWith('video/')) {
                 videoFileList = videoFileList.filter((_, i) => i !== index);  // 正確地移除影片
-                resetFileInput('media');  // 重置圖片或影片上傳
             }
+            resetFileInput('media');  // 重置圖、影片上傳區域
+
         });
 
         previewItem.appendChild(element);

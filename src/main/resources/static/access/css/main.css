@@ -119,14 +119,6 @@ body {
 }
 
 .notification-count {
-    /*position: absolute;*/
-    /*top: -5px;*/
-    /*right: -5px;*/
-    /*background-color: #fa3e3e;*/
-    /*font-size: 11px;*/
-    /*padding: 2px 5px;*/
-    /*border-radius: 50%;*/
-
     position: absolute;
     top: -5px;
     right: -5px;
