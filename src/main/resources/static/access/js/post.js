@@ -4,6 +4,10 @@ let loading;
 let limit;
 let hasMorePosts;
 
+// 全域變數，用於新增貼文時的圖片和影片列表
+// let imageFileList = [];
+// let videoFileList = [];
+
 function loadPosts(userId, page, limit) {
     loading = true; // 開始加載資料
     if (checkJwtToken()) {
@@ -15,7 +19,7 @@ function loadPosts(userId, page, limit) {
 
                 if (posts.length > 0) {
                     posts.forEach(post => displayPost(post, prepend = false));
-                    console.log('第' + page + '頁，' + '還有下一頁：' + hasMore);
+                    console.log('第' + page + '頁，還有下一頁：' + hasMore);
                 }
                 // 更新 hasMorePosts 狀態
                 hasMorePosts = hasMore;
@@ -80,7 +84,8 @@ function initializePosts() {
     // 監聽圖片和影片的選擇
     document.getElementById('media').addEventListener('change', function (event) {
         const previewContainer = document.getElementById('previewContainer'); // 對應預覽區域
-        handleFiles(event.target.files, previewContainer); // 傳遞預覽區域
+        // 傳遞全域的 imageFileList 和 videoFileList，以及 existingFilesCount = 0
+        handleFiles(event.target.files, previewContainer, imageFileList, videoFileList, 0); // 傳遞預覽區域和全域的檔案列表
     });
     // 監聽字數
     document.getElementById('postContent').addEventListener('input', function () {

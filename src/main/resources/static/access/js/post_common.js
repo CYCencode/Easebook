@@ -1,66 +1,17 @@
-//post_common.js
-// let imageFileList = [];
-// let videoFileList = [];
-//
-// function handleFiles(files, previewContainer) {
-//     Array.from(files).forEach((file, index) => {
-//         const previewItem = document.createElement('div');
-//         previewItem.classList.add('preview-item');
-//
-//         let element;
-//         if (file.type.startsWith('image/')) {
-//             element = document.createElement('img');
-//             element.src = URL.createObjectURL(file);
-//             imageFileList.push(file);  // 把圖片檔案推到 imageFileList
-//             console.log('imageFileList push :', imageFileList)
-//         } else if (file.type.startsWith('video/')) {
-//             element = document.createElement('video');
-//             element.src = URL.createObjectURL(file);
-//             element.controls = true;
-//             videoFileList.push(file);  // 把影片檔案推到 videoFileList
-//         }
-//
-//         // 生成右上角的 "叉叉" 刪除按鈕
-//         const removeBtn = document.createElement('button');
-//         removeBtn.classList.add('remove-btn');
-//         removeBtn.innerHTML = '&times;';  // 顯示叉叉符號
-//
-//         // 設置叉叉按鈕的點擊事件來移除對應的圖片或影片
-//         removeBtn.addEventListener('click', () => {
-//             previewItem.remove();  // 移除該項目的預覽
-//
-//             // 從 fileList 中移除對應的檔案
-//             if (file.type.startsWith('image/')) {
-//                 imageFileList = imageFileList.filter((_, i) => i !== index);  // 正確地移除圖片
-//                 resetFileInput('media');  // 重置圖片或影片上傳
-//                 console.log('imageFileList reset :', imageFileList);
-//             } else if (file.type.startsWith('video/')) {
-//                 videoFileList = videoFileList.filter((_, i) => i !== index);  // 正確地移除影片
-//                 resetFileInput('media');  // 重置圖片或影片上傳
-//             }
-//         });
-//
-//         previewItem.appendChild(element);
-//         previewItem.appendChild(removeBtn);
-//         previewContainer.appendChild(previewItem);
-//     });
-// }
-//
-//
-// // 重置 input file 元素，允許再次上傳
-// function resetFileInput(id) {
-//     const input = document.getElementById(id);
-//     input.value = '';  // 重置 input 的值，允許重新選擇相同檔案
-// }
+// post_common.js
+// 全域變數，用於新增貼文時的圖片和影片列表
 let imageFileList = [];
 let videoFileList = [];
 
-function handleFiles(files, previewContainer) {
+function handleFiles(files, previewContainer, imageFileList, videoFileList, existingFilesCount = 0) {
+
     // 檢查檔案大小、數量
     const maxFileSize = 2 * 1024 * 1024; // 2MB
     const maxFiles = 3;
 
-    const totalFiles = imageFileList.length + videoFileList.length + files.length
+
+    // 在計算 totalFiles 時，包含 existingFilesCount，考慮現有的圖片和影片
+    const totalFiles = existingFilesCount + imageFileList.length + videoFileList.length + files.length;
     if (totalFiles > maxFiles) {
         alert('一則貼文最多上傳3個檔案');
         return;
@@ -73,7 +24,7 @@ function handleFiles(files, previewContainer) {
     }
 
     // 檔案預覽
-    Array.from(files).forEach((file, index) => {
+    Array.from(files).forEach((file) => {
         const previewItem = document.createElement('div');
         previewItem.classList.add('preview-item');
 
@@ -82,7 +33,7 @@ function handleFiles(files, previewContainer) {
             element = document.createElement('img');
             element.src = URL.createObjectURL(file);
             imageFileList.push(file);  // 把圖片檔案推到 imageFileList
-            console.log('imageFileList push :', imageFileList)
+
         } else if (file.type.startsWith('video/')) {
             element = document.createElement('video');
             element.src = URL.createObjectURL(file);
@@ -95,36 +46,49 @@ function handleFiles(files, previewContainer) {
         removeBtn.classList.add('remove-btn');
         removeBtn.innerHTML = '&times;';  // 顯示叉叉符號
 
-        // 設置叉叉按鈕的點擊事件來移除對應的圖片或影片
+        // 使用檔案物件本身來從列表中移除，確保正確的檔案被移除
         removeBtn.addEventListener('click', () => {
             previewItem.remove();  // 移除該項目的預覽
 
-            // 從 fileList 中移除對應的檔案
             if (file.type.startsWith('image/')) {
-                imageFileList = imageFileList.filter((_, i) => i !== index);  // 正確地移除圖片
+                const index = imageFileList.indexOf(file);
+                if (index > -1) {
+                    imageFileList.splice(index, 1);
+                }
+
             } else if (file.type.startsWith('video/')) {
-                videoFileList = videoFileList.filter((_, i) => i !== index);  // 正確地移除影片
+                const index = videoFileList.indexOf(file);
+                if (index > -1) {
+                    videoFileList.splice(index, 1);
+                }
+
             }
+
+
             resetFileInput('media');  // 重置圖、影片上傳區域
+
 
         });
 
         previewItem.appendChild(element);
         previewItem.appendChild(removeBtn);
         previewContainer.appendChild(previewItem);
+
     });
 }
-
 
 // 重置 input file 元素，允許再次上傳
 function resetFileInput(id) {
     const input = document.getElementById(id);
-    input.value = '';  // 重置 input 的值，允許重新選擇相同檔案
+    if (input) {
+        input.value = '';  // 重置 input 的值，允許重新選擇相同檔案
+    }
 }
 
+// 其他函式保持不變，如 removePost, displayPost 等
 function removePost(post) {
     const postDiv = document.querySelector(`[data-post-id='${post.postId}']`);
-    console.log('postDiv', postDiv);
+
     if (postDiv) {
         postDiv.remove();
     }
@@ -193,12 +157,24 @@ function displayPost(post, prepend = true) {
 
 /* 讓使用者調整貼文用的視窗 */
 function showEditPostForm(post) {
-    // 檢查是否已經有顯示的編輯表單
-    let editFormModal = document.querySelector('.edit-post-modal');
-    if (!editFormModal) {
-        editFormModal = document.createElement('div');
-        editFormModal.className = 'edit-post-modal';
-        editFormModal.innerHTML = `
+    if (checkJwtToken()) {
+        fetchWithJwt(`/api/posts/${post.postId}?userId=${currentUserId}`)
+            .then(response => response.json())
+            .then(post => {
+                // 定義本地的圖片和影片列表，避免與全域變數混淆
+                let imageFileList = [];
+                let videoFileList = [];
+                let existingImages = [...post.images]; // 複製現有的圖片列表
+                let existingVideos = [...post.videos]; // 複製現有的影片列表
+
+
+                // 檢查是否已經有顯示的編輯表單
+                let editFormModal = document.querySelector('.edit-post-modal');
+
+                if (!editFormModal) {
+                    editFormModal = document.createElement('div');
+                    editFormModal.className = 'edit-post-modal';
+                    editFormModal.innerHTML = `
             <div class="modal-content">
                 <button class="close-button">X</button>
                 <form id="editPostForm" enctype="multipart/form-data">
@@ -212,114 +188,147 @@ function showEditPostForm(post) {
                 </form>
             </div>
         `;
-        document.body.appendChild(editFormModal);
+                    document.body.appendChild(editFormModal);
+                }
+                // **更新文字區域的內容**
+                const editPostContent = editFormModal.querySelector('#editPostContent');
+                editPostContent.value = post.content;
+
+                // **清空並重新載入預覽區域**
+                const previewContainer = editFormModal.querySelector('#editPreviewContainer');
+
+                previewContainer.innerHTML = '';
+
+                // 既有圖片和影片：使用 S3 URL 提供預覽
+                existingImages.forEach((imageUrl) => {
+                    const previewItem = document.createElement('div');
+                    previewItem.classList.add('preview-item');
+                    const imgElement = document.createElement('img');
+                    imgElement.src = imageUrl;
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.classList.add('remove-btn');
+                    removeBtn.innerHTML = '&times;';  // 顯示叉叉符號
+
+                    // 使用 imageUrl 來確保正確移除圖片
+                    removeBtn.addEventListener('click', () => {
+                        const index = existingImages.indexOf(imageUrl);
+                        if (index > -1) {
+                            existingImages.splice(index, 1);  // 移除該圖片
+                        }
+                        previewItem.remove();  // 從畫面中移除預覽
+                    });
+
+                    previewItem.appendChild(imgElement);
+                    previewItem.appendChild(removeBtn);
+                    previewContainer.appendChild(previewItem);
+                });
+
+                existingVideos.forEach((videoUrl) => {
+                    const previewItem = document.createElement('div');
+                    previewItem.classList.add('preview-item');
+                    const videoElement = document.createElement('video');
+                    videoElement.src = videoUrl;
+                    videoElement.controls = true;
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.classList.add('remove-btn');
+                    removeBtn.innerHTML = '&times;';  // 顯示叉叉符號
+
+                    // 使用 videoUrl 來確保正確移除影片
+                    removeBtn.addEventListener('click', () => {
+                        const index = existingVideos.indexOf(videoUrl);
+                        if (index > -1) {
+                            existingVideos.splice(index, 1);  // 移除該影片
+                        }
+                        previewItem.remove();  // 從畫面中移除預覽
+                    });
+
+                    previewItem.appendChild(videoElement);
+                    previewItem.appendChild(removeBtn);
+                    previewContainer.appendChild(previewItem);
+                });
+
+                // **在新增事件監聽器之前，先移除已存在的監聽器**
+
+                // 更新按鈕
+                const updatePostButton = document.getElementById('updatePostButton');
+                const newUpdatePostButton = updatePostButton.cloneNode(true);
+                updatePostButton.parentNode.replaceChild(newUpdatePostButton, updatePostButton);
+
+                newUpdatePostButton.addEventListener('click', () => {
+                    updatePost(post.postId, imageFileList, videoFileList, existingImages, existingVideos);
+
+                });
+
+                // 圖片/影片輸入框
+                const editMediaInput = document.getElementById('editMedia');
+                const newEditMediaInput = editMediaInput.cloneNode(true);
+                editMediaInput.parentNode.replaceChild(newEditMediaInput, editMediaInput);
+
+                newEditMediaInput.addEventListener('change', function (event) {
+
+                    const existingFilesCount = existingImages.length + existingVideos.length;
+                    handleFiles(event.target.files, previewContainer, imageFileList, videoFileList, existingFilesCount);  // 使用 handleFiles 處理新上傳的檔案
+                });
+
+                // 在畫面上顯示調整貼文視窗
+                editFormModal.style.display = 'block';
+
+                // 關閉按鈕
+                const closeButton = editFormModal.querySelector('.close-button');
+                const newCloseButton = closeButton.cloneNode(true);
+                closeButton.parentNode.replaceChild(newCloseButton, closeButton);
+
+                // 點擊叉叉時，重置本地的圖片和影片列表，避免影響後續操作
+                newCloseButton.addEventListener('click', () => {
+
+                    editFormModal.style.display = 'none';
+                    imageFileList = [];
+                    videoFileList = [];
+                    existingImages = [];
+                    existingVideos = [];
+                });
+            }).catch(error => {
+            if (error.status === 401) {
+                redirectToLogin();
+            } else {
+                console.error('Error fetching post details:', error);
+            }
+        })
+
+    } else {
+        // 没有 JWT token，重新登入
+        redirectToLogin();
     }
-
-    const previewContainer = editFormModal.querySelector('#editPreviewContainer');
-    previewContainer.innerHTML = '';
-
-    // 既有圖片和影片：使用s3 URL 提供預覽
-    post.images.forEach((imageUrl, index) => {
-        const previewItem = document.createElement('div');
-        previewItem.classList.add('preview-item');
-        const imgElement = document.createElement('img');
-        imgElement.src = imageUrl;
-
-        const removeBtn = document.createElement('button');
-        removeBtn.classList.add('remove-btn');
-        removeBtn.innerHTML = '&times;';  // 顯示叉叉符號
-
-        // 點擊叉叉移除圖片
-        removeBtn.addEventListener('click', () => {
-            post.images.splice(index, 1);  // 移除該圖片
-            previewItem.remove();  // 從畫面中移除預覽
-        });
-
-        previewItem.appendChild(imgElement);
-        previewItem.appendChild(removeBtn);
-        previewContainer.appendChild(previewItem);
-    });
-
-    post.videos.forEach((videoUrl, index) => {
-        const previewItem = document.createElement('div');
-        previewItem.classList.add('preview-item');
-        const videoElement = document.createElement('video');
-        videoElement.src = videoUrl;
-        videoElement.controls = true;
-
-        const removeBtn = document.createElement('button');
-        removeBtn.classList.add('remove-btn');
-        removeBtn.innerHTML = '&times;';  // 顯示叉叉符號
-
-        // 點擊叉叉移除影片
-        removeBtn.addEventListener('click', () => {
-            post.videos.splice(index, 1);  // 移除該影片
-            previewItem.remove();  // 從畫面中移除預覽
-        });
-
-        previewItem.appendChild(videoElement);
-        previewItem.appendChild(removeBtn);
-        previewContainer.appendChild(previewItem);
-    });
-
-    // 點擊更新按鈕事件
-    document.getElementById('updatePostButton').addEventListener('click', () => {
-        updatePost(post.postId);
-        console.log('updatePost(post.postId) : ', post.postId);
-    });
-
-    // 新上傳圖片/影片的預覽功能 ：以URL.createObjectURL本地顯示預覽
-    document.getElementById('editMedia').addEventListener('change', function (event) {
-        handleFiles(event.target.files, previewContainer);  // 使用 handleFiles 處理新上傳的檔案
-    });
-
-    // 在畫面上顯示調整貼文視窗
-    editFormModal.style.display = 'block';
-    // 點擊叉叉就跳出視窗
-    editFormModal.querySelector('.close-button').addEventListener('click', () => {
-        editFormModal.style.display = 'none';
-    });
 }
 
 /* 送出更新 */
-function updatePost(postId) {
+function updatePost(postId, imageFileList, videoFileList, existingImages, existingVideos) {
     const content = document.getElementById('editPostContent').value;
     const formData = new FormData();
 
     formData.append('content', content);
 
     // 新上傳的圖片和影片
-    const newMediaFiles = document.getElementById('editMedia').files;
-    Array.from(newMediaFiles).forEach(file => {
-        if (file.type.startsWith('image/')) {
-            formData.append('newImages', file);
-            // 是否會誤判，而放到 newImage?
-            console.log('newImages : ', file)
-        } else if (file.type.startsWith('video/')) {
-            formData.append('newVideos', file);
-        }
+    imageFileList.forEach(file => {
+        formData.append('newImages', file);
+    });
+    videoFileList.forEach(file => {
+        formData.append('newVideos', file);
     });
 
-    // 保留現有的圖片和影片，但過濾掉 blob URL
-    const existingImages = Array.from(document.querySelectorAll('#editPreviewContainer img'))
-        .map(img => img.src)
-        .filter(src => !src.startsWith('blob:'));  // 過濾掉 blob URL
-
-    const existingVideos = Array.from(document.querySelectorAll('#editPreviewContainer video'))
-        .map(video => video.src)
-        .filter(src => !src.startsWith('blob:'));  // 過濾掉 blob URL
-
+    // 保留現有的圖片和影片
     existingImages.forEach(imageUrl => formData.append('existingImages', imageUrl));
     existingVideos.forEach(videoUrl => formData.append('existingVideos', videoUrl));
 
-    console.log('formData : {}', formData);
 
     // 發送 PUT 請求
     if (checkJwtToken()) {
         fetchWithJwt(`/api/posts/${postId}`, {method: 'PUT', body: formData})
             .then(response => response.json())
             .then(updatedPost => {
-                console.log('updatedPost ', updatedPost);
+
                 stompClient.send(`/app/notify/post/update`, {}, JSON.stringify(updatedPost));
                 // 關閉編輯表單
                 document.querySelector('.edit-post-modal').style.display = 'none';
@@ -338,6 +347,7 @@ function updatePost(postId) {
     }
 }
 
+// 其他函式保持不變
 function showPostDetails(postId) {
     if (checkJwtToken()) {
         fetchWithJwt(`/api/posts/${postId}?userId=${currentUserId}`)
@@ -588,14 +598,6 @@ function createPostActions(post, thumbsCount, commentsCount, isDetailPage = fals
     });
 
     // 留言事件處理
-    // commentInput.addEventListener('keydown', (e) => {
-    //     if (e.key === 'Enter') {
-    //         const commentContent = commentInput.value.trim();
-    //         if (commentContent) {
-    //             submitComment(post.postId, commentContent, commentsCount, commentInput, isDetailPage);
-    //         }
-    //     }
-    // });
     let isComposing = false;
 
     // 偵測選字開始
@@ -641,7 +643,7 @@ function showThumbUsers(postId, thumbsCount) {
         fetchWithJwt(`/api/posts/${postId}/thumb`)
             .then(response => response.json())
             .then(users => {
-                console.log('users : ', users)
+
                 thumbsCount.textContent = `${users.length}個讚`;
 
                 // 檢查是否已經有顯示用戶的視窗
