@@ -177,8 +177,16 @@ function renderComments(comments, container, replyNum = null, postId) {
 
                 // 將編輯輸入框添加到 DOM 中
                 commentContentDiv.appendChild(commentInput);
+                // 選字事件
+                let isComposing = false;
+                commentInput.addEventListener('compositionstart', () => {
+                    isComposing = true;
+                });
+                commentInput.addEventListener('compositionend', () => {
+                    isComposing = false;
+                });
                 commentInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === 'Enter' && !isComposing) {
                         const updatedContent = commentInput.value.trim();
                         if (checkJwtToken()) {
                             fetchWithJwt(`/api/posts/${postId}/comments`, {
