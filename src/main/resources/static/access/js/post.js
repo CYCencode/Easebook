@@ -101,7 +101,16 @@ function initializePosts() {
 
     // 發佈按鈕的處理
     document.getElementById('postButton').addEventListener('click', function () {
-        const content = document.getElementById('postContent').value;
+        const content = document.getElementById('postContent').value.trim(); // 去除空白
+        const hasImages = imageFileList.length > 0;
+        const hasVideos = videoFileList.length > 0;
+
+        // 如果貼文內容、圖片和影片皆為空，顯示警告並阻止發文
+        if (!content && !hasImages && !hasVideos) {
+            alert('貼文內容、圖片或影片不可全為空');
+            return; // 阻止發文
+        }
+        
         const formData = new FormData();
         formData.append('userId', currentUserId); // 使用當前用戶ID
         formData.append('userName', localStorage.getItem('currentUser')); // 使用當前用戶名稱
