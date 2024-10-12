@@ -140,6 +140,7 @@ function initializePosts() {
                         imageFileList = [];
                         videoFileList = [];
                         resetFileInput('media');
+                        document.getElementById('charCount').textContent = '0/1000';
                     })
                     .catch(error => {
                         if (error.status === 401) {
