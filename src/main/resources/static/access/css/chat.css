@@ -140,7 +140,7 @@
     flex-grow: 1;
     padding: 10px;
     display: flex;
-    height: 400px;
+    height: 350px;
     flex-direction: column;
     overflow-y: scroll;
     box-sizing: border-box;
@@ -151,7 +151,7 @@
     bottom: 20px;
     right: 20px;
     width: 300px;
-    height: 400px;
+    height: 450px;
     background-color: white;
     z-index: 1000;
 }
