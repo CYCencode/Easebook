@@ -36,22 +36,25 @@ public class PostServiceImpl implements PostService {
     @Override
     public void validatePost(PostRequestDTO postRequestDTO) {
         // 檢查文字長度
-        if (postRequestDTO.getContent().length() > 1000) {
+        if (postRequestDTO.getContent() == null || postRequestDTO.getContent().length() > 1000) {
             throw new IllegalArgumentException("文字長度不可超過1000字");
         }
+        // 確保 images, videos 不為 null, 若為 null 則設為空列表
+        List<MultipartFile> images = postRequestDTO.getImages() != null ? postRequestDTO.getImages() : Collections.emptyList();
+        List<MultipartFile> videos = postRequestDTO.getVideos() != null ? postRequestDTO.getVideos() : Collections.emptyList();
 
         // 檢查圖片和影片數量
-        if (postRequestDTO.getImages().size() > 3 || postRequestDTO.getVideos().size() > 3) {
+        if (images.size() + videos.size() > 3) {
             throw new IllegalArgumentException("最多只能上傳3張圖片或影片");
         }
 
         // 檢查圖片和影片大小
-        for (MultipartFile image : postRequestDTO.getImages()) {
+        for (MultipartFile image : images) {
             if (image.getSize() > 2 * 1024 * 1024) { // 2MB
                 throw new IllegalArgumentException("圖片大小不可超過2MB");
             }
         }
-        for (MultipartFile video : postRequestDTO.getVideos()) {
+        for (MultipartFile video : videos) {
             if (video.getSize() > 2 * 1024 * 1024) {
                 throw new IllegalArgumentException("影片大小不可超過2MB");
             }
@@ -90,6 +93,36 @@ public class PostServiceImpl implements PostService {
         Post savedPost = postRepository.save(post);
         userPostRepository.save(post);
         return convertToResponseDTO(savedPost);
+    }
+
+    @Override
+    public void validateUpdatePost(UpdatePostRequestDTO updatePostRequestDTO) {
+        // 檢查文字長度
+        if (updatePostRequestDTO.getContent() == null || updatePostRequestDTO.getContent().length() > 1000) {
+            throw new IllegalArgumentException("文字長度不可超過1000字");
+        }
+        // 確保 images, videos 不為 null, 若為 null 則設為空列表
+        List<MultipartFile> newImages = updatePostRequestDTO.getNewImages() != null ? updatePostRequestDTO.getNewImages() : Collections.emptyList();
+        List<MultipartFile> newVideos = updatePostRequestDTO.getNewVideos() != null ? updatePostRequestDTO.getNewVideos() : Collections.emptyList();
+        // 計算原有的圖影片數量 : 注意是否會有null pointer 問題
+        int existCount = updatePostRequestDTO.getExistingImages().size() + updatePostRequestDTO.getExistingVideos().size();
+
+        // 檢查圖片和影片數量 : 檢查原有圖片與新增圖片的數量總計是否超過3張
+        if (existCount + newImages.size() + newVideos.size() > 3) {
+            throw new IllegalArgumentException("最多只能上傳3張圖片或影片");
+        }
+
+        // 檢查圖片和影片大小
+        for (MultipartFile image : newImages) {
+            if (image.getSize() > 2 * 1024 * 1024) { // 2MB
+                throw new IllegalArgumentException("圖片大小不可超過2MB");
+            }
+        }
+        for (MultipartFile video : newVideos) {
+            if (video.getSize() > 2 * 1024 * 1024) {
+                throw new IllegalArgumentException("影片大小不可超過2MB");
+            }
+        }
     }
 
     @Override

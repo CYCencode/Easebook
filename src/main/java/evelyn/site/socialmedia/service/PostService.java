@@ -10,6 +10,8 @@ import java.util.Map;
 public interface PostService {
     void validatePost(PostRequestDTO postRequestDTO);
 
+    void validateUpdatePost(UpdatePostRequestDTO updatePostRequestDTO);
+
     PostResponseDTO createPost(PostRequestDTO postRequestDTO) throws IOException;
 
     PostResponseDTO updatePost(String postId, UpdatePostRequestDTO updatePostRequestDTO) throws IOException;

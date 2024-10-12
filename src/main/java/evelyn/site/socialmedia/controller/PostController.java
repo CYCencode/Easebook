@@ -61,18 +61,36 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
+    //    @PutMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<PostResponseDTO> updatePost(
+//            @PathVariable String postId,
+//            @ModelAttribute UpdatePostRequestDTO updatePostRequestDTO) {
+//        try {
+//            // 1. check if update post is valid
+//            postService.validateUpdatePost(updatePostRequestDTO);
+//            PostResponseDTO updatedPost = postService.updatePost(postId, updatePostRequestDTO);
+//            log.info("put request done, response updatedPost: {}", updatedPost);
+//            return ResponseEntity.ok(updatedPost);
+//        } catch (IOException e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
     @PutMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostResponseDTO> updatePost(
+    public ResponseEntity<?> updatePost(
             @PathVariable String postId,
             @ModelAttribute UpdatePostRequestDTO updatePostRequestDTO) {
         try {
-            log.info("Updating Post with id: {}", postId);
-            log.info("put PostRequestDTO {}", updatePostRequestDTO);
+            // 1. check if content, file are valid
+            postService.validateUpdatePost(updatePostRequestDTO);
+            // 2. update post since content is valid
             PostResponseDTO updatedPost = postService.updatePost(postId, updatePostRequestDTO);
+            log.info("put PostRequestDTO {}", updatePostRequestDTO);
             log.info("put request done, response updatedPost: {}", updatedPost);
             return ResponseEntity.ok(updatedPost);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("貼文更新失敗，請稍後再試");
         }
     }
 
