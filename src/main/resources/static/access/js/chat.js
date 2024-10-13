@@ -22,7 +22,7 @@ function displayNewMessages() {
     sortedMessages.forEach(notification => {
         const messageItem = document.createElement('div');
         messageItem.classList.add('message-item');
-        const senderName = notification.senderName;
+        let senderName = notification.senderName;
         const content = notification.content;
         const timeDiff = displayTimeDifference(calculateTimeDifference(notification.createAt));
         const truncatedContent = content.length > 10 ? content.substring(0, 10) + '...' : content;
@@ -30,20 +30,23 @@ function displayNewMessages() {
         messageItem.innerHTML = `
         <img src="${defaultUserPhoto}" alt="${senderName}" id="avatar-${notification.senderId}" class="user-avatar">
         <div class="message-content">
-            <div class="message-header" id="${notification.senderId}">
+            <div class="message-header" id="sender-${notification.senderId}">
                 <strong>${senderName}</strong>
                 <span>${truncatedContent}</span>
             </div>
             <small>${timeDiff}</small>
         </div>
         `;
-        loadUserAvatar(notification.senderId).then(avatarUrl => {
+        loadUserAvatar(notification.senderId, true).then(data => {
+            const {photo, username} = data;
             const avatarImg = document.getElementById(`avatar-${notification.senderId}`);
-            avatarImg.src = avatarUrl || defaultUserPhoto;
+            avatarImg.src = photo || defaultUserPhoto;
+            // 更新senderName
+            const messageHeader = document.getElementById(`sender-${notification.senderId}`);
+            messageHeader.querySelector('strong').innerText = senderName;
         })
-
         messageItem.addEventListener('click', function () {
-            openChatWindow(senderName, notification.senderId, notification.chatRoomId);
+            openChatWindow(notification.senderId, notification.chatRoomId);
             // 更新訊息已讀狀態
             fetch(`/api/chat/chat-request/`, {
                 method: 'POST',
@@ -132,7 +135,7 @@ function displayChatSearchResult(users) {
                 const receiverName = this.getAttribute('data-user-name');
                 checkChatRoom(receiverId).then(chatRoomId => {
                     console.log('checkChatRoom chatRoomId: ', chatRoomId)
-                    openChatWindow(receiverName, receiverId, chatRoomId); // 打開兩人聊天室
+                    openChatWindow(receiverId, chatRoomId);
                     searchResultDiv.style.display = 'none';
                 });
             });
@@ -154,15 +157,13 @@ function checkChatRoom(receiverId) {
 }
 
 // 打開聊天視窗並訂閱聊天室
-function openChatWindow(receiverName, receiverId, chatRoomId) {
-    console.log('openChatWindow chatRoomId: ', chatRoomId)
+function openChatWindow(receiverId, chatRoomId) {
     // 清空現有的聊天框內容
     const chatBox = document.getElementById('chatBox');
     chatBox.innerHTML = '';
     // 顯示聊天窗口
     const chatWindow = document.getElementById('chatWindow');
     const chatReceiver = document.getElementById('chatReceiver');
-    chatReceiver.innerText = receiverName;
     chatReceiver.setAttribute('data-chatroom-id', chatRoomId);
     chatReceiver.setAttribute('data-receiver-id', receiverId);
     // 設置預設圖片
@@ -171,8 +172,10 @@ function openChatWindow(receiverName, receiverId, chatRoomId) {
     chatReceiverAvatar.setAttribute('data-receiver-id', receiverId);
 
     // 非同步載入用戶大頭照
-    loadUserAvatar(receiverId).then(avatarUrl => {
-        chatReceiverAvatar.src = avatarUrl || defaultUserPhoto;
+    loadUserAvatar(receiverId, true).then(data => {
+        const {photo, username} = data;
+        chatReceiverAvatar.src = photo || defaultUserPhoto;
+        chatReceiver.innerText = username;
     });
     chatWindow.style.display = 'block';
     // 訂閱對應的聊天室、載入歷史聊天紀錄
@@ -238,8 +241,6 @@ function loadChatHistory(chatRoomId) {
         .then(data => {
             if (Array.isArray(data)) {
                 data.forEach(message => {
-                    console.log(message.senderName, message.content, message.createAt);
-                    console.log('message time use Date: ', Date(message.createAt));
                     showMessage(message.senderName, message.senderId, message.content, message.createAt);
                 });
             }
@@ -296,7 +297,7 @@ function showFriend(userProfile) {
 
             checkChatRoom(receiverId).then(chatRoomId => {
                 console.log('checkChatRoom chatRoomId: ', chatRoomId);
-                openChatWindow(receiverName, receiverId, chatRoomId); // 打開兩人聊天室
+                openChatWindow(receiverId, chatRoomId);
             });
         });
 

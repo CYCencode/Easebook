@@ -12,13 +12,18 @@ window.jwtToken = jwtToken;
 
 
 // 載入用戶大頭照時使用
-function loadUserAvatar(userId) {
+function loadUserAvatar(userId, containName = false) {
     // 檢查 JWT token 並進行資料請求
     if (checkJwtToken()) {
         return fetchWithJwt(`/api/profile/${userId}`, {method: 'GET'})
             .then(response => response.json())
             .then(profileData => {
-                console.log('profileData ', profileData);
+                if (containName) {
+                    return {
+                        'photo': profileData.photo,
+                        'username': profileData.username
+                    };
+                }
                 return profileData.photo;
             })
             .catch(error => {
@@ -127,7 +132,7 @@ function connect(isPost) {
                         userName.textContent = username;
                     }
                     // 更新聊天通知姓名
-                    const chatSenderName = document.querySelector(`.message-header[id="${userId}"]`);
+                    const chatSenderName = document.querySelector(`.message-header[id="sender-${userId}"]`);
                     if (chatSenderName) {
                         chatSenderName.querySelector('strong').textContent = username;
                     }
@@ -268,7 +273,7 @@ function connect(isPost) {
             // 訂閱接收者的訊息同步頻道 (聊天訊息)
             stompClient.subscribe(`/user/queue/notify/message`, function (messageOutput) {
                 const message = JSON.parse(messageOutput.body);
-                console.log('message chatroom, ' + message.chatRoomId);
+                console.log('message chatroom, ' + message);
                 // 檢查是否已經存在該 sender 的通知
                 const existMessageNotification = document.getElementById('messageNotificationList').querySelector(`.message-header[id="${message.senderId}"]`);
                 if (existMessageNotification) {

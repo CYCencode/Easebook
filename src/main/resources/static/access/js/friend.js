@@ -58,7 +58,7 @@ function displayFriendSearchResult(users) {
         // 發訊息
         handleButtonClick('.sendMessageButton', (receiverId, receiverName) => {
             checkChatRoom(receiverId).then(chatRoomId => {
-                openChatWindow(receiverName, receiverId, chatRoomId);
+                openChatWindow(receiverId, chatRoomId);
             })
         });
         searchResultDiv.style.display = 'block';
