@@ -43,7 +43,7 @@ function loadPosts(userId, page, limit) {
 
 // 新增好友，貼文畫面更新
 function fetchNewFriendPosts(friendId) {
-    fetchWithJwt(`/api/posts/user/${friendId}?page=1&limit=1`)
+    fetchWithJwt(`/api/posts/user/${friendId}?currentUserId=${currentUserId}&page=1&limit=1`)
         .then(response => response.json())
         .then(data => {
             const newFriendPosts = data.posts;
@@ -110,7 +110,7 @@ function initializePosts() {
             alert('貼文內容、圖片或影片不可全為空');
             return; // 阻止發文
         }
-        
+
         const formData = new FormData();
         formData.append('userId', currentUserId); // 使用當前用戶ID
         formData.append('userName', localStorage.getItem('currentUser')); // 使用當前用戶名稱
