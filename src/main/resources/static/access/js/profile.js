@@ -83,16 +83,49 @@ function showEditForm() {
 
 // 提交個人資料表單
 function submitProfile() {
-    const formData = new FormData();
+    // 檢查使用者名稱、簡介、位置、email、手機
+    const username = document.getElementById("usernameInput").value.trim();
+    const bio = document.getElementById("bioInput").value.trim();
+    const location = document.getElementById("locationInput").value.trim();
+    const email = document.getElementById("userEmailInput").value.trim();
+    const phone = document.getElementById("phoneInput").value.trim();
+    if (username && username.length > 20) {
+        alert("使用者名稱不得超過20個字。");
+        return;
+    }
+    if (bio && bio.length > 200) {
+        alert("簡介不得超過200個字。");
+        return;
+    }
+    if (location && location.length > 30) {
+        alert("位置描述不得超過30個字。");
+        return;
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert("請輸入可用的信箱。");
+        return;
+    }
+    if (phone && !/^[0-9]{10}$/.test(phone)) {
+        alert("請輸入10碼格式之手機號碼。");
+        return;
+    }
+
     const coverPhoto = document.getElementById("coverPhotoInput").files[0];
     const photo = document.getElementById("photoInput").files[0];
+    // 檢查圖片大小
+    const maxFileSize = 2 * 1024 * 1024;
+    if ((coverPhoto.size > maxFileSize) || (photo.size > maxFileSize)) {
+        alert("圖片大小不得超過2MB。")
+        return;
+    }
 
+    // 通過檢查，處理表單資料
+    const formData = new FormData();
     if (coverPhoto) {
         formData.append("coverPhoto", coverPhoto);
     }
     if (photo) {
         formData.append("photo", photo);
-        console.log('photo ', photo);
     }
     const birthdayInputValue = document.getElementById("birthdayInput").value;
     if (birthdayInputValue) {
@@ -101,16 +134,16 @@ function submitProfile() {
             formData.append("birthday", birthdayDate.toISOString());
         } else {
             alert("請輸入有效的生日日期。");
-            return; // 停止表單提交
+            return;
         }
     }
 
     formData.append("userId", currentUserId);  // 使用當前使用者的ID
-    formData.append("username", document.getElementById("usernameInput").value);
-    formData.append("location", document.getElementById("locationInput").value);
-    formData.append("email", document.getElementById("userEmailInput").value);
-    formData.append("phone", document.getElementById("phoneInput").value);
-    formData.append("bio", document.getElementById("bioInput").value);
+    formData.append("username", username);
+    formData.append("location", location);
+    formData.append("email", email);
+    formData.append("phone", phone);
+    formData.append("bio", bio);
     fetchWithJwt('/api/profile', {
         method: 'POST',
         body: formData

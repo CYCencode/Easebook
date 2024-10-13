@@ -82,11 +82,11 @@
                 <form id="profileForm" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="usernameInput" class="form-label">使用者名稱</label>
-                        <input type="text" class="form-control" id="usernameInput" name="username">
+                        <input type="text" class="form-control" id="usernameInput" name="username" maxlength="20">
                     </div>
                     <div class="mb-3">
                         <label for="bioInput" class="form-label">簡介</label>
-                        <textarea class="form-control" id="bioInput" name="bio" rows="3"></textarea>
+                        <textarea class="form-control" id="bioInput" name="bio" rows="3" maxlength="200"></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="birthdayInput" class="form-label">生日</label>
@@ -94,7 +94,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="locationInput" class="form-label">位置</label>
-                        <input type="text" class="form-control" id="locationInput" name="location">
+                        <input type="text" class="form-control" id="locationInput" name="location" maxlength="30">
                     </div>
                     <div class="mb-3">
                         <label for="userEmailInput" class="form-label">信箱</label>

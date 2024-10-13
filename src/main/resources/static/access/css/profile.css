@@ -36,3 +36,12 @@
         margin-top: 1rem;
     }
 }
+
+.edit-post-modal textarea {
+    width: 100% !important;
+}
+
+.edit-post-modal .close-button {
+    top: -50px !important;
+    right: -29px !important;
+}
