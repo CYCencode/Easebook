@@ -314,6 +314,7 @@ function handleButtonClick(buttonClass, actionCallback, replyRequest = false) {
             } else {
                 actionCallback(userId, receiverName); // 用於處理其他操作，如加好友或發訊息
             }
+            document.getElementById('friendSearchInput').value = ''; // 重置搜尋框
             document.getElementById('friendSearchResult').style.display = 'none'; // 隱藏搜尋結果
         });
     });
