@@ -1,28 +1,27 @@
 package evelyn.site.socialmedia.service;
 
-import evelyn.site.socialmedia.repository.ChatMessageRepository;
 import evelyn.site.socialmedia.model.ChatMessage;
+import evelyn.site.socialmedia.repository.ChatMessageRepository;
 import evelyn.site.socialmedia.util.CacheUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Value;
-import java.time.Instant;
-import java.util.List;
-import java.util.Comparator;
 
+import java.util.Comparator;
+import java.util.List;
 
 
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class ChatMessageServiceImpl implements  ChatMessageService {
+public class ChatMessageServiceImpl implements ChatMessageService {
 
-    @Value("${chat.message.limit:20}")
+    @Value("${chat.message.limit:30}")
     private int messageLimit;
     private final CacheUtil cacheUtil;
     private final ChatMessageRepository chatMessageRepository;
@@ -47,8 +46,8 @@ public class ChatMessageServiceImpl implements  ChatMessageService {
         String cacheKey = "chatRoom:" + chatRoomId;
         List<ChatMessage> cacheMessages = cacheUtil.getMessagesFromCache(cacheKey);
         log.info("cacheUtil.getCache Messages : {}", cacheMessages);
-        if (cacheMessages != null&& !cacheMessages.isEmpty()) {
-            log.info("cache hit for room : {}",chatRoomId);
+        if (cacheMessages != null && !cacheMessages.isEmpty()) {
+            log.info("cache hit for room : {}", chatRoomId);
             return cacheMessages;
         }
 
@@ -62,7 +61,7 @@ public class ChatMessageServiceImpl implements  ChatMessageService {
         if (!chatMessages.isEmpty()) {
             // 展示資料時，由舊到新排序，以符合聊天室對話邏輯
             chatMessages.sort(Comparator.comparing(ChatMessage::getCreateAt));
-            log.info("use db : {}",chatMessages);
+            log.info("use db : {}", chatMessages);
             // 將資料庫中查到的資料順序的存入 Redis 快取（由舊到新排序rightPush）
             for (ChatMessage message : chatMessages) {
                 cacheUtil.addMessageToCache(cacheKey, message, messageLimit);
@@ -71,6 +70,7 @@ public class ChatMessageServiceImpl implements  ChatMessageService {
 
         return chatMessages;
     }
+
     @Override
     public void processChatMessage(ChatMessage chatMessage) {
         String chatRoomId = chatMessage.getChatRoomId();

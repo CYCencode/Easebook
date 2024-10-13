@@ -2,9 +2,9 @@ package evelyn.site.socialmedia.util;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.data.redis.RedisConnectionFailureException;
 
 import java.util.List;
 
@@ -13,17 +13,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CacheUtil {
     private final RedisTemplate<String, Object> redisTemplate;
+
     public <V> void addMessageToCache(String key, V value, int messageLimit) {
-        try{
+        try {
             redisTemplate.opsForList().rightPush(key, value);
-            redisTemplate.opsForList().trim(key, 0, messageLimit-1);
+            //redisTemplate.opsForList().trim(key, 0, messageLimit-1);
+            // 取最尾端的30筆資料... 最新的30筆
+            redisTemplate.opsForList().trim(key, -messageLimit, -1);
             log.info("Update cache for key:{} with value:{}", key, value);
-        }catch (RedisConnectionFailureException e){
-            log.error("Redis connection failed while updating cache: {}",key, e);
+        } catch (RedisConnectionFailureException e) {
+            log.error("Redis connection failed while updating cache: {}", key, e);
             // 快取更新失敗，將快取清除以維持資料一致性
             delete(key);
         }
     }
+
     // 獲取快取中的訊息
     public <V> List<V> getMessagesFromCache(String key) {
         try {
