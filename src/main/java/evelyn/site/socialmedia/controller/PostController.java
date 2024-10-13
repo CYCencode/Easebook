@@ -46,9 +46,10 @@ public class PostController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<Map<String, Object>> getPostByUserId(@PathVariable String userId,
+                                                               @RequestParam String currentUserId,
                                                                @RequestParam String page,
                                                                @RequestParam String limit) {
-        Map<String, Object> posts = postService.getPostByUserId(userId, page, limit);
+        Map<String, Object> posts = postService.getPostByUserId(userId, currentUserId, page, limit);
         return ResponseEntity.ok(posts);
     }
 
@@ -61,20 +62,7 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
-    //    @PutMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<PostResponseDTO> updatePost(
-//            @PathVariable String postId,
-//            @ModelAttribute UpdatePostRequestDTO updatePostRequestDTO) {
-//        try {
-//            // 1. check if update post is valid
-//            postService.validateUpdatePost(updatePostRequestDTO);
-//            PostResponseDTO updatedPost = postService.updatePost(postId, updatePostRequestDTO);
-//            log.info("put request done, response updatedPost: {}", updatedPost);
-//            return ResponseEntity.ok(updatedPost);
-//        } catch (IOException e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
+
     @PutMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updatePost(
             @PathVariable String postId,

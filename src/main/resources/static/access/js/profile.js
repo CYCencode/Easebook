@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
         profileUserId = getQueryStringParameter('userId');
         fetchProfileData(profileUserId);
         loadPosts(profileUserId, 1, 5); // 預設載入第一頁的5篇貼文
-        // 初始化 WebSocket 连接
+        // 初始化 WebSocket 連接
         if (typeof initializeApp === 'function') {
             initializeApp(isPost = false);
         }
@@ -197,7 +197,7 @@ document.getElementById('profileForm').addEventListener('submit', function (even
 // 從伺服器載入用戶貼文
 function loadPosts(userId, page, limit) {
     loading = true; // 開始加載資料
-    fetchWithJwt(`/api/posts/user/${userId}?page=${page}&limit=${limit}`)
+    fetchWithJwt(`/api/posts/user/${userId}?currentUserId=${currentUserId}&page=${page}&limit=${limit}`)
         .then(response => response.json())
         .then(data => {
             const posts = data.posts;

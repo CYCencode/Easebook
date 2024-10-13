@@ -187,7 +187,9 @@ public class PostServiceImpl implements PostService {
     public PostResponseDTO getPost(String postId, String userId) {
         Post post = postRepository.findByPostId(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        return convertToResponseDTO(post, userId);
+        PostResponseDTO result = convertToResponseDTO(post, userId);
+        log.info("getPost : {}", result);
+        return result;
     }
    /*
    分頁加載貼文 ：
@@ -228,12 +230,13 @@ public class PostServiceImpl implements PostService {
         Map<String, Object> result = new HashMap<>();
         result.put("posts", posts);
         result.put("hasMore", hasMore);
+        log.info("getPosts : {}", result);
         return result;
 
     }
 
     @Override
-    public Map<String, Object> getPostByUserId(String userId, String page, String limit) {
+    public Map<String, Object> getPostByUserId(String userId, String currentUserId, String page, String limit) {
         // 準備分頁資訊
         int pageNumber = Integer.parseInt(page);
         int pageSize = Integer.parseInt(limit) + 1; //多取一筆判斷是否還有更多資料
@@ -243,7 +246,7 @@ public class PostServiceImpl implements PostService {
 
         // 轉換為 PostResponseDTO，paging 並根據 userId 判斷 liked 屬性
         List<PostResponseDTO> posts = postPage.getContent().stream()
-                .map(post -> convertToResponseDTO(post, userId))
+                .map(post -> convertToResponseDTO(post, currentUserId))
                 .collect(Collectors.toList());
 
         boolean hasMore = posts.size() == pageSize;
@@ -253,6 +256,7 @@ public class PostServiceImpl implements PostService {
         Map<String, Object> result = new HashMap<>();
         result.put("posts", posts);
         result.put("hasMore", hasMore);
+        log.info("getPostByUserId : {}", result);
         return result;
     }
 
@@ -324,18 +328,23 @@ public class PostServiceImpl implements PostService {
         log.info("toggle thumb postId: " + postId + " userId: " + userId + " avatarUrl: " + avatarUrl);
         Optional<Post> postOpt = postRepository.findByPostId(postId);
         if (postOpt.isPresent()) {
+            boolean liked;
             Post post = postOpt.get();
             boolean alreadyLiked = post.getThumbUsers().stream()
                     .anyMatch(thumb -> thumb.getUserId().equals(userId));
             if (alreadyLiked) {
                 // 如果用戶已經按讚，則取消按讚
                 postRepository.removeThumb(postId, userId);
+                liked = false;
             } else {
                 // 如果用戶尚未按讚，則添加按讚
                 postRepository.addThumb(postId, userId, userName, avatarUrl);
+                liked = true;
             }
             // 查詢並返回更新後的貼文
-            return convertToResponseDTO(postRepository.findByPostId(postId).orElseThrow(() -> new RuntimeException("Post not found after update")));
+            PostResponseDTO updatedPost = convertToResponseDTO(postRepository.findByPostId(postId).orElseThrow(() -> new RuntimeException("Post not found after update")));
+            updatedPost.setLiked(liked);
+            return updatedPost;
 
         } else {
             throw new RuntimeException("Post not found");

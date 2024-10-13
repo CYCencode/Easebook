@@ -32,7 +32,6 @@ public class Post {
     private int thumbsCount;
     private int replyCount;
     private Instant createAt;
-    //    private Map<String, Comment> comments = new HashMap<>();
     private List<Comment> comments = new ArrayList<>();
     private String status = "ACTIVE";
 }

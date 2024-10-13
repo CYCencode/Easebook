@@ -20,7 +20,7 @@ public interface PostService {
 
     Map<String, Object> getPosts(String userId, String page, String limit);
 
-    Map<String, Object> getPostByUserId(String userId, String page, String limit);
+    Map<String, Object> getPostByUserId(String userId, String currentUserId, String page, String limit);
 
     PostResponseDTO toggleThumb(String postId, ThumbRequestDTO thumbRequestDTO);
 

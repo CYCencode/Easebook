@@ -95,6 +95,7 @@ function removePost(post) {
 }
 
 function displayPost(post, prepend = true) {
+    console.log('post', post);
     const postsDiv = document.getElementById('posts');
 
     // 檢查貼文是否已存在
@@ -727,6 +728,19 @@ function notifyWebSocket(topic, updatedData) {
     stompClient.send(topic, {}, JSON.stringify(updatedData));
 }
 
+// async function likePost(postId, currentUserId, thumbsCountElement) {
+//     if (!validateJwtOrRedirect()) return;
+//
+//     const thumbInfo = {
+//         userId: currentUserId,
+//         userName: localStorage.getItem('currentUser'),
+//         avatarUrl: await loadUserPhoto(currentUserId)
+//     };
+//
+//     const updatedPost = await sendPostRequest(`/api/posts/${postId}/thumb`, thumbInfo);
+//     thumbsCountElement.textContent = `${updatedPost.thumbsCount}個讚`;
+//     notifyWebSocket(`/app/notify/thumb/update`, updatedPost);
+// }
 async function likePost(postId, currentUserId, thumbsCountElement) {
     if (!validateJwtOrRedirect()) return;
 
@@ -738,8 +752,19 @@ async function likePost(postId, currentUserId, thumbsCountElement) {
 
     const updatedPost = await sendPostRequest(`/api/posts/${postId}/thumb`, thumbInfo);
     thumbsCountElement.textContent = `${updatedPost.thumbsCount}個讚`;
+
+    // 更新按讚按鈕的樣式
+    const likeButtons = document.querySelectorAll(`button.like-button[data-post-id="${postId}"]`);
+    likeButtons.forEach(button => {
+        if (updatedPost.liked) {
+            button.classList.add('liked');
+        } else {
+            button.classList.remove('liked');
+        }
+    });
     notifyWebSocket(`/app/notify/thumb/update`, updatedPost);
 }
+
 
 async function submitComment(postId, commentContent, commentsCountElement, commentInputElement, isDetailPage = false) {
     if (!validateJwtOrRedirect()) return;
