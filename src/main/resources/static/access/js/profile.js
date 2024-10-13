@@ -114,17 +114,19 @@ function submitProfile() {
     const photo = document.getElementById("photoInput").files[0];
     // 檢查圖片大小
     const maxFileSize = 2 * 1024 * 1024;
-    if ((coverPhoto.size > maxFileSize) || (photo.size > maxFileSize)) {
-        alert("圖片大小不得超過2MB。")
-        return;
-    }
-
-    // 通過檢查，處理表單資料
     const formData = new FormData();
     if (coverPhoto) {
+        if (coverPhoto.size > maxFileSize) {
+            alert("圖片大小不得超過2MB。")
+            return;
+        }
         formData.append("coverPhoto", coverPhoto);
     }
     if (photo) {
+        if (photo.size > maxFileSize) {
+            alert("圖片大小不得超過2MB。")
+            return;
+        }
         formData.append("photo", photo);
     }
     const birthdayInputValue = document.getElementById("birthdayInput").value;
