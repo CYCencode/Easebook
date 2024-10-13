@@ -16,6 +16,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ChatNotifyServiceImpl implements ChatNotifyService {
     private final ChatNotifyRepository chatNotifyRepository;
+
     @Override
     public void upsertChatNotify(ChatMessage chatMessage) {
         // 1. 查詢是否已存在符合特定聊天室、收訊對象的紀錄
@@ -30,6 +31,8 @@ public class ChatNotifyServiceImpl implements ChatNotifyService {
             notify.setSenderName(chatMessage.getSenderName());
             notify.setContent(chatMessage.getContent());
             notify.setCreateAt(chatMessage.getCreateAt());
+            // 重置已讀紀錄
+            notify.setSeen(false);
             chatNotifyRepository.save(notify);
         } else {
             // 3. 如果不存在，保存新紀錄
@@ -46,12 +49,14 @@ public class ChatNotifyServiceImpl implements ChatNotifyService {
         }
 
     }
+
     @Override
-    public List<ChatNotify> getChatRequests(String userId){
+    public List<ChatNotify> getChatRequests(String userId) {
         return chatNotifyRepository.findBySeenFalseAndReceiverIdOrderByCreateAtDesc(userId);
     }
+
     @Override
-    public void updateIsReadStatus(String chatRoomId, String receiverId){
+    public void updateIsReadStatus(String chatRoomId, String receiverId) {
         Optional<ChatNotify> notifyOptional = chatNotifyRepository.findByChatRoomIdAndReceiverId(chatRoomId, receiverId);
         if (notifyOptional.isPresent()) {
             ChatNotify notify = notifyOptional.get();
