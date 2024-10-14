@@ -4,10 +4,6 @@ let loading;
 let limit;
 let hasMorePosts;
 
-// 全域變數，用於新增貼文時的圖片和影片列表
-// let imageFileList = [];
-// let videoFileList = [];
-
 function loadPosts(userId, page, limit) {
     loading = true; // 開始加載資料
     if (checkJwtToken()) {

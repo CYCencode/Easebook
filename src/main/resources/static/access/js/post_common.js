@@ -258,6 +258,13 @@ function showEditPostForm(post) {
                 updatePostButton.parentNode.replaceChild(newUpdatePostButton, updatePostButton);
 
                 newUpdatePostButton.addEventListener('click', () => {
+                    const content = editPostContent.value;
+
+                    // 檢查字數是否超過 1000
+                    if (content.length > 1000) {
+                        alert("文字長度不可超過1000字");
+                        return; // 阻止更新貼文
+                    }
                     updatePost(post.postId, imageFileList, videoFileList, existingImages, existingVideos);
 
                 });
@@ -783,7 +790,7 @@ async function submitComment(postId, commentContent, commentsCountElement, comme
 
     if (isDetailPage) {
         const postComments = document.querySelector('.post-comments');
-        renderComments(updatedPost.comments, postComments);
+        renderComments(updatedPost.comments, postComments, null, updatedPost.postId);
     }
 
     notifyWebSocket(`/app/notify/comment/update`, updatedPost);
