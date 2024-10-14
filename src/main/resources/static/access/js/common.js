@@ -335,3 +335,4 @@ window.getCurrentUTCTime = getCurrentUTCTime;
 window.calculateTimeDifference = calculateTimeDifference;
 window.displayTimeDifference = displayTimeDifference;
 window.formatTimeToAMPM = formatTimeToAMPM;
+window.getRequestButtonConfig = getRequestButtonConfig;

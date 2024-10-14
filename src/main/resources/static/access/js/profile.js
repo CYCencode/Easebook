@@ -3,6 +3,7 @@ let limit = 5;
 let loading = false;  // 防止多次加載
 let hasMorePosts = true;  // 初始化為 true，表示第一次載入時應該有更多資料
 let profileUserId = null;
+let friendButtonFlag = false;
 
 document.addEventListener("DOMContentLoaded", function () {
     // 檢查 JWT token 並進行資料請求
@@ -27,6 +28,14 @@ document.addEventListener("DOMContentLoaded", function () {
             loadPosts(profileUserId, currentPage, limit);
         }
     });
+
+    // 綁定關閉按鈕的功能
+    document.getElementById('closeChat').addEventListener('click', function () {
+        const chatBox = document.getElementById('chatBox');
+        chatBox.innerHTML = '';  // 清空聊天室內容
+        const chatWindow = document.getElementById('chatWindow');
+        chatWindow.style.display = 'none';
+    });
 });
 
 // 從伺服器獲取使用者個人資料
@@ -39,12 +48,125 @@ function fetchProfileData(userId) {
             if (currentUserId === profileData.userId) {
                 showEditButton();
                 populateEditForm(profileData); // 填入現有的資料到表單中
+            } else {
+                fetchFriendshipStatus(currentUserId, profileData.userId)
+                    .then(data => {
+                        const status = data.status;
+                        const friendRequestId = data.friendRequestId;
+                        // 展示按鈕
+                        showFriendButton(profileData.userId, profileData.username, status, friendRequestId);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching friendship status:', error);
+                    });
             }
         })
         .catch(error => {
             console.error('載入個人資料失敗:', error);
             alert('載入個人資料失敗');
         });
+}
+
+// 取得好友關係狀態
+function fetchFriendshipStatus(currentUserId, profileUserId) {
+    return fetch(`/api/users/search/friendship?userId=${profileUserId}&currentUserId=${currentUserId}`)
+        .then(response => response.json())
+        .then(data => {
+            return data;
+        })
+        .catch(error => {
+            console.error('Error fetching friendship status:', error);
+            throw error;
+        });
+}
+
+// 顯示好友按鈕
+function showFriendButton(profileUserId, profileUsername, status, friendRequestId) {
+    const {buttonText, buttonClass} = getRequestButtonConfig(status);
+
+    const actionButtonsContainer = document.getElementById('actionButtonsContainer');
+
+    // 移除已存在的好友操作按鈕
+    const existingButton = document.getElementById('friendActionButton');
+    if (existingButton) {
+        actionButtonsContainer.removeChild(existingButton);
+    }
+
+    // 創建新的按鈕
+    const friendActionButton = document.createElement('button');
+    friendActionButton.id = 'friendActionButton';
+    friendActionButton.className = `btn ${buttonClass} me-2`;
+    friendActionButton.setAttribute('data-user-id', profileUserId);
+    friendActionButton.setAttribute('data-user-name', profileUsername);
+    if (friendRequestId) {
+        friendActionButton.setAttribute('data-request-id', friendRequestId);
+    }
+    friendActionButton.textContent = buttonText;
+
+    actionButtonsContainer.appendChild(friendActionButton);
+
+    // 添加事件監聽器
+    friendActionButton.addEventListener('click', function () {
+        if (friendButtonFlag) {
+            return;
+        }
+        friendButtonFlag = true;
+
+        const userId = this.getAttribute('data-user-id');
+        const userName = this.getAttribute('data-user-name');
+        const requestId = this.getAttribute('data-request-id');
+
+        if (buttonClass === 'unsendRequestButton') {
+            // 取消好友邀請
+            replyToFriendRequest(requestId, null, false)
+                .then(() => {
+                    // 更新按鈕為「加朋友」
+                    showFriendButton(profileUserId, profileUsername, 3); // Stranger
+                    friendButtonFlag = false;
+                })
+                .catch(error => {
+                    console.error('Error cancelling friend request:', error);
+                    friendButtonFlag = false;
+                });
+        } else if (buttonClass === 'confirmRequestButton') {
+            // 確認好友邀請
+            replyToFriendRequest(requestId, profileUserId, true)
+                .then(() => {
+                    // 更新按鈕為「發訊息」
+                    showFriendButton(profileUserId, profileUsername, 2); // Friend
+                    friendButtonFlag = false;
+                })
+                .catch(error => {
+                    console.error('Error confirming friend request:', error);
+                    friendButtonFlag = false;
+                });
+        } else if (buttonClass === 'addFriendButton') {
+            // 發送好友邀請
+            sendFriendRequest(profileUserId, profileUsername)
+                .then(() => {
+                    // 更新按鈕為「取消好友邀請」
+                    showFriendButton(profileUserId, profileUsername, 0); // Pending (you sent request)
+                    friendButtonFlag = false;
+                })
+                .catch(error => {
+                    console.error('Error sending friend request:', error);
+                    friendButtonFlag = false;
+                });
+        } else if (buttonClass === 'sendMessageButton') {
+            // 發送訊息
+            checkChatRoom(profileUserId)
+                .then(chatRoomId => {
+                    openChatWindow(profileUserId, chatRoomId);
+                    friendButtonFlag = false;
+                })
+                .catch(error => {
+                    console.error('Error opening chat window:', error);
+                    friendButtonFlag = false;
+                });
+        } else {
+            friendButtonFlag = false;
+        }
+    });
 }
 
 // 顯示個人資料的函數
@@ -194,7 +316,6 @@ document.getElementById('profileForm').addEventListener('submit', function (even
     submitProfile();
 });
 
-// ==================== 新增的貼文顯示邏輯 ====================
 
 // 從伺服器載入用戶貼文
 function loadPosts(userId, page, limit) {

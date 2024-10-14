@@ -116,25 +116,6 @@ function connect(isPost) {
                 });
             }
         });
-        // 按讚更新
-        // stompClient.subscribe(`/user/queue/notify/thumb/update`, function (thumbOutput) {
-        //     const updatedThumb = JSON.parse(thumbOutput.body);
-        //     console.log('updatedThumb ', updatedThumb);
-        //
-        //     // 查找畫面上是否存在該貼文
-        //     const existingPost = document.querySelector(`.post[data-post-id="${updatedThumb.postId}"]`);
-        //     if (existingPost) {
-        //         // 更新按讚數
-        //         const thumbsCountElement = existingPost.querySelector('.thumbs-count');
-        //         thumbsCountElement.textContent = `${updatedThumb.thumbsCount}個讚`;
-        //     }
-        //     // 如果有開啟的貼文詳細頁面，也同步更新按讚數
-        //     const postModal = document.querySelector('.post-modal');
-        //     if (postModal && postModal.querySelector(`[data-post-id="${updatedThumb.postId}"]`)) {
-        //         const thumbsCountElement = postModal.querySelector('.thumbs-count');
-        //         thumbsCountElement.textContent = `${updatedThumb.thumbsCount}個讚`;
-        //     }
-        // });
 
         // 留言更新
         stompClient.subscribe(`/user/queue/notify/comment/update`, function (commentOutput) {
@@ -316,7 +297,6 @@ function connect(isPost) {
             // 訂閱接收者的訊息同步頻道 (聊天訊息)
             stompClient.subscribe(`/user/queue/notify/message`, function (messageOutput) {
                 const message = JSON.parse(messageOutput.body);
-                console.log('message chatroom, ' + message);
                 // 檢查是否已經存在該 sender 的通知
                 const existMessageNotification = document.getElementById('messageNotificationList').querySelector(`.message-header[id="${message.senderId}"]`);
                 if (existMessageNotification) {

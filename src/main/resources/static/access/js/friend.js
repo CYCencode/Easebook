@@ -273,5 +273,6 @@ function initializeFriend() {
 window.initializeFriend = initializeFriend;
 window.addFriendNotification = addFriendNotification;
 window.updateNotificationCount = updateNotificationCount;
+window.sendFriendRequest = sendFriendRequest;
 window.replyToFriendRequest = replyToFriendRequest;
 window.handleFriendAcceptNotification = handleFriendAcceptNotification;

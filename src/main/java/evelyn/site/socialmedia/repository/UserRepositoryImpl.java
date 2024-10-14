@@ -91,4 +91,38 @@ public class UserRepositoryImpl implements UserRepository {
         return namedParameterJdbcTemplate.query(sql, params, new UserDTORowMapper());
     }
 
+    @Override
+    public UserDTO findFriendshipById(String userId, String currentUserId) {
+        String sql = """
+                SELECT u.id, u.name, 
+                       fr.id AS friend_request_id,
+                       CASE 
+                           WHEN fr.status = 0 AND fr.sender_id = :currentUserId THEN 0  -- currentUser 是發送者，狀態為 SENDER_PENDING
+                           WHEN fr.status = 0 AND fr.receiver_id = :currentUserId THEN 1  -- currentUser 是接收者，狀態為 RECEIVER_PENDING
+                           WHEN fr.status = 1 THEN 2  -- 狀態為 FRIEND
+                           ELSE 3  -- DECLINE 或沒有記錄
+                       END AS status
+                FROM users u 
+                LEFT JOIN friend_request fr ON fr.id = (
+                    SELECT id FROM friend_request 
+                    WHERE (sender_id = :currentUserId AND receiver_id = u.id) 
+                       OR (receiver_id = :currentUserId AND sender_id = u.id)
+                    ORDER BY create_at DESC LIMIT 1  -- 只選取最新的好友請求
+                )
+                WHERE u.id = :userId AND u.id != :currentUserId
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("currentUserId", currentUserId);
+        params.addValue("userId", userId);
+
+        List<UserDTO> users = namedParameterJdbcTemplate.query(sql, params, new UserDTORowMapper());
+
+        if (users != null && !users.isEmpty()) {
+            return users.get(0);
+        } else {
+            return null;
+        }
+    }
+
 }

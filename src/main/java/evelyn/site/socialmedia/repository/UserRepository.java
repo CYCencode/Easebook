@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface UserRepository {
     List<UserDTO> findUsersByUsername(String username, String currentUserId);
 
+    UserDTO findFriendshipById(String userId, String currentUserId);
+
     boolean existsByEmail(String email);
 
     Users save(Users user);

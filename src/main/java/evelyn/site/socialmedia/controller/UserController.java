@@ -52,12 +52,27 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    //以userId 搜尋好友關係
+    @GetMapping("/search/friendship")
+    public ResponseEntity<UserDTO> searchFriendshipByUserId(@RequestParam String userId,
+                                                            @RequestParam String currentUserId) {
+        UserDTO user = userService.findFriendshipById(userId, currentUserId);
+        log.info("/search/friendship by userId: {}", userId);
+        log.info("/search/friendship user : {}", user);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
     @GetMapping("/search/friends")
     public ResponseEntity<List<FriendDTO>> searchFriends(@RequestParam String username,
                                                          @RequestParam String currentUserId) {
         List<FriendDTO> friends = userService.findFriendsByName(username, currentUserId);
         return ResponseEntity.ok(friends);
     }
+
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequestDTO signupRequestDTO, BindingResult bindingResult) {
