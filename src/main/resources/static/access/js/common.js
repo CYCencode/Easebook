@@ -1,5 +1,6 @@
 // common.js
 let replyNum = 3;
+let commentFlag = false;
 
 /* 以名字搜尋用戶 : 開聊天室、加好友 */
 function fetchUsers(username, currentUserId) {
@@ -105,12 +106,18 @@ function renderComments(comments, container, replyNum = null, postId) {
             deleteButton.textContent = '刪除';
             deleteButton.className = 'delete-comment-button';
             deleteButton.addEventListener('click', () => {
+                // 阻擋連點刪除評論
+                if (commentFlag === true) {
+                    return;
+                }
+                commentFlag = true;
                 if (checkJwtToken()) {
                     fetchWithJwt(`/api/posts/${postId}/comments/${comment.id}`, {
                         method: 'DELETE'
                     })
                         .then(response => response.json())
                         .then(updatedPost => {
+                            commentFlag = false;
                             // 更新留言數顯示
                             console.log('updatedPost in post/comment fetch ', updatedPost)
                             const commentsCount = document.getElementById(`comments-count-${postId}`);
@@ -128,7 +135,8 @@ function renderComments(comments, container, replyNum = null, postId) {
                                 // JWT token 可能無效或過期，重導到登入頁面
                                 redirectToLogin();
                             } else {
-                                console.log('Error:', error);
+                                console.log('status :', error.status);
+                                console.error('Error :', error);
                                 alert('無法刪除評論，請稍後再試');
                             }
                         });
