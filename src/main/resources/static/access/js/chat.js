@@ -142,6 +142,7 @@ function displayChatSearchResult(users) {
         });
     } else {
         searchResultDiv.innerHTML = '<p>無相符的使用者</p>';
+        searchResultDiv.style.display = 'block';
     }
 }
 
