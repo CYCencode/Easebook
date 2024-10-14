@@ -531,7 +531,7 @@ function deletePost(post) {
                     redirectToLogin();
                 } else {
                     console.error('Error:', error);
-                    alert('删除失败');
+                    alert('刪除失敗');
                 }
             });
     } else {

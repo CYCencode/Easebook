@@ -128,7 +128,7 @@ function renderComments(comments, container, replyNum = null, postId) {
                                 // JWT token 可能無效或過期，重導到登入頁面
                                 redirectToLogin();
                             } else {
-                                console.error('Error:', error);
+                                console.log('Error:', error);
                                 alert('無法刪除評論，請稍後再試');
                             }
                         });
