@@ -118,11 +118,13 @@ function showFriendButton(profileUserId, profileUsername, status, friendRequestI
         const requestId = this.getAttribute('data-request-id');
         console.log('requestId : ', requestId)
         if (buttonClass === 'unsendRequestButton') {
+            // 先更新按鈕為加好友
+            showFriendButton(profileUserId, profileUsername, 3);
             // 取消好友邀請
             replyToFriendRequest(requestId, null, false)
                 .then(() => {
-                    // 更新按鈕為「加朋友」
-                    showFriendButton(profileUserId, profileUsername, 3); // Stranger
+                    // 完成request後才可以點擊
+                    // showFriendButton(profileUserId, profileUsername, 3); // Stranger
                     friendButtonFlag = false;
                 })
                 .catch(error => {
@@ -142,11 +144,13 @@ function showFriendButton(profileUserId, profileUsername, status, friendRequestI
                     friendButtonFlag = false;
                 });
         } else if (buttonClass === 'addFriendButton') {
+            // 先更新按鈕為取消好友邀請
+            showFriendButton(profileUserId, profileUsername, 0);
             // 發送好友邀請
             sendFriendRequest(profileUserId, profileUsername)
                 .then(() => {
-                    // 更新按鈕為「取消好友邀請」
-                    showFriendButton(profileUserId, profileUsername, 0); // Pending (you sent request)
+                    // 完成request後才可以點擊
+                    // showFriendButton(profileUserId, profileUsername, 0); // Pending (you sent request)
                     friendButtonFlag = false;
                 })
                 .catch(error => {
