@@ -69,6 +69,38 @@ function displayFriendSearchResult(users) {
 }
 
 // 送出好友邀請
+// function sendFriendRequest(receiverId, receiverName) {
+//     const friendRequest = {
+//         senderId: currentUserId,
+//         senderName: localStorage.getItem('currentUser'),
+//         receiverId: receiverId,
+//         receiverName: receiverName,
+//         createAt: getCurrentUTCTime(), // 獲取當前 UTC 時間
+//         senderAvatar: document.getElementById('currentUserAvatar').src
+//     };
+//
+//     fetch('/api/friend-requests', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify(friendRequest)
+//     })
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('無法送出好友邀請，請重試');
+//             }
+//             return response.json();
+//         })
+//         .then(friendRequestDTO => {
+//             console.log('friend request post response.json:', friendRequestDTO);
+//             alert('好友邀請已送出');
+//             stompClient.send("/app/notify/friend", {}, JSON.stringify(friendRequestDTO));  // 通知接收者
+//         })
+//         .catch(error => console.error('Error sending friend request:', error));
+// }
+
+// 送出好友邀請
 function sendFriendRequest(receiverId, receiverName) {
     const friendRequest = {
         senderId: currentUserId,
@@ -79,7 +111,7 @@ function sendFriendRequest(receiverId, receiverName) {
         senderAvatar: document.getElementById('currentUserAvatar').src
     };
 
-    fetch('/api/friend-requests', {
+    return fetch('/api/friend-requests', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -97,7 +129,10 @@ function sendFriendRequest(receiverId, receiverName) {
             alert('好友邀請已送出');
             stompClient.send("/app/notify/friend", {}, JSON.stringify(friendRequestDTO));  // 通知接收者
         })
-        .catch(error => console.error('Error sending friend request:', error));
+        .catch(error => {
+            console.error('Error sending friend request:', error)
+            throw error;
+        });
 }
 
 // 新增通知
@@ -161,7 +196,7 @@ function updateNotificationCount(change) {
 }
 
 function replyToFriendRequest(id, senderId, accept) {
-    fetch(`/api/friend-requests/reply?request_id=${id}&senderId=${senderId}&receiverId=${currentUserId}&accept=${accept}`, {
+    return fetch(`/api/friend-requests/reply?request_id=${id}&senderId=${senderId}&receiverId=${currentUserId}&accept=${accept}`, {
         method: 'POST'
     })
         .then(response => {
@@ -177,34 +212,34 @@ function replyToFriendRequest(id, senderId, accept) {
                 throw new Error('Network response was not ok.');
             }
         }).then(profileResponseDTO => {
-        alert(accept ? '已接受好友邀請' : '已刪除好友邀請');
-        // 移除通知項目
-        const notificationList = document.getElementById('notificationList');
-        const notificationItem = notificationList.querySelector(`[data-request-id="${id}"]`).parentNode;
-        notificationList.removeChild(notificationItem);
-        updateNotificationCount(-1);
-        if (accept && profileResponseDTO && profileResponseDTO.userId) {
-            // 更新自己的主頁好友列表
-            const newFriend = {
-                userId: profileResponseDTO.userId,
-                username: profileResponseDTO.username,
-                photo: profileResponseDTO.photo || defaultUserPhoto
-            };
-            showFriend(newFriend);
-            // 獲取新好友的第一則貼文，置於頁首
-            fetchNewFriendPosts(senderId);
-            // 傳送自己的資訊給 sender 更新畫面
-            const acceptorInfo = {
-                userId: currentUserId,
-                username: localStorage.getItem('currentUser'),
-                photo: document.getElementById('currentUserAvatar').src || defaultUserPhoto
+            alert(accept ? '已接受好友邀請' : '已刪除好友邀請');
+            // 移除通知項目
+            const notificationList = document.getElementById('notificationList');
+            const notificationItem = notificationList.querySelector(`[data-request-id="${id}"]`).parentNode;
+            notificationList.removeChild(notificationItem);
+            updateNotificationCount(-1);
+            if (accept && profileResponseDTO && profileResponseDTO.userId) {
+                // 更新自己的主頁好友列表
+                const newFriend = {
+                    userId: profileResponseDTO.userId,
+                    username: profileResponseDTO.username,
+                    photo: profileResponseDTO.photo || defaultUserPhoto
+                };
+                showFriend(newFriend);
+                // 獲取新好友的第一則貼文，置於頁首
+                fetchNewFriendPosts(senderId);
+                // 傳送自己的資訊給 sender 更新畫面
+                const acceptorInfo = {
+                    userId: currentUserId,
+                    username: localStorage.getItem('currentUser'),
+                    photo: document.getElementById('currentUserAvatar').src || defaultUserPhoto
+                }
+                stompClient.send('/app/notify/friend/accept', {}, JSON.stringify({
+                    senderId: senderId,
+                    acceptorInfo: acceptorInfo
+                }));
             }
-            stompClient.send('/app/notify/friend/accept', {}, JSON.stringify({
-                senderId: senderId,
-                acceptorInfo: acceptorInfo
-            }));
-        }
-    })
+        })
         .catch(error => console.error('Error replying to friend request:', error));
 }
 

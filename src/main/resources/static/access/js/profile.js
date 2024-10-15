@@ -54,6 +54,7 @@ function fetchProfileData(userId) {
                         const status = data.status;
                         const friendRequestId = data.friendRequestId;
                         // 展示按鈕
+                        console.log('fetchProfileData showFriendButton', profileData.userId);
                         showFriendButton(profileData.userId, profileData.username, status, friendRequestId);
                     })
                     .catch(error => {
@@ -115,7 +116,7 @@ function showFriendButton(profileUserId, profileUsername, status, friendRequestI
         const userId = this.getAttribute('data-user-id');
         const userName = this.getAttribute('data-user-name');
         const requestId = this.getAttribute('data-request-id');
-
+        console.log('requestId : ', requestId)
         if (buttonClass === 'unsendRequestButton') {
             // 取消好友邀請
             replyToFriendRequest(requestId, null, false)
