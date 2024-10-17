@@ -1,10 +1,12 @@
 const subscribedChatRooms = new Set(); // 用於追蹤已訂閱的聊天室
 const newMessages = {};
+let hasLastPage = true;
+let isLoading = false;
+let lastCreateAt = null;
 
 function displayChatNotify(notification) {
     const senderId = notification.senderId;
     newMessages[senderId] = notification;
-    console.log('message notify time, ', notification.createAt);
     // 更新訊息通知數量
     updateMessageNotificationCount();
     displayNewMessages();
@@ -152,7 +154,6 @@ function checkChatRoom(receiverId) {
     return fetch(`/api/chat/chatroom?user1=${currentUserId}&user2=${receiverId}`)
         .then(response => response.json())
         .then(data => {
-            console.log('checkChatRoom data: ', data)
             return data.chatRoomId;
         });
 }
@@ -162,6 +163,12 @@ function openChatWindow(receiverId, chatRoomId) {
     // 清空現有的聊天框內容
     const chatBox = document.getElementById('chatBox');
     chatBox.innerHTML = '';
+
+    // 初始化分頁變數
+    hasLastPage = true;
+    isLoading = false;
+    lastCreateAt = null;
+
     // 顯示聊天窗口
     const chatWindow = document.getElementById('chatWindow');
     const chatReceiver = document.getElementById('chatReceiver');
@@ -181,6 +188,7 @@ function openChatWindow(receiverId, chatRoomId) {
     chatWindow.style.display = 'block';
     // 訂閱對應的聊天室、載入歷史聊天紀錄
     subscribeToChatRoom(chatRoomId);
+    initializeChatWindow();
 }
 
 // 訂閱私人聊天室
@@ -191,7 +199,7 @@ function subscribeToChatRoom(chatRoomId) {
         console.log('Subscribing to chatRoom ' + chatRoomId);
         stompClient.subscribe(`/chat/private/${chatRoomId}`, function (messageOutput) {
             const message = JSON.parse(messageOutput.body);
-            showMessage(message.senderName, message.senderId, message.content, message.createAt);
+            showMessage(message.senderName, message.senderId, message.content, message.createAt, message.id);
         });
         subscribedChatRooms.add(chatRoomId);
     }
@@ -200,10 +208,15 @@ function subscribeToChatRoom(chatRoomId) {
 }
 
 // 動態顯示訊息
-function showMessage(sender, senderId, message, createAt) {
+function showMessage(sender, senderId, message, createAt, messageId, scrollToBottom = true) {
     let chatBox = document.getElementById("chatBox");
+    if (document.querySelector(`[data-msg-id="${messageId}"]`)) {
+        return; // 如果消息已存在,直接返回,不重複渲染
+    }
+
     const newMessage = document.createElement('div');
     newMessage.classList.add('message');
+    newMessage.setAttribute('data-msg-id', messageId);
 
     // 訊息內容容器
     const messageContentWrapper = document.createElement('div');
@@ -212,7 +225,6 @@ function showMessage(sender, senderId, message, createAt) {
     // 訊息內容
     const messageContent = document.createElement('p');
     messageContent.textContent = message;
-
     // 將 UTC+0 的 createAt 轉換為 UTC+8 並格式化為 "上午/下午 HH:mm"
     const messageTimeText = formatTimeToAMPM(convertUTC0ToUTC8(createAt));
 
@@ -231,24 +243,112 @@ function showMessage(sender, senderId, message, createAt) {
     newMessage.appendChild(messageTime);
 
     chatBox.appendChild(newMessage);
-    chatBox.scrollTop = chatBox.scrollHeight; // 自動滾動到聊天框底部
+    if (scrollToBottom) {
+        chatBox.scrollTop = chatBox.scrollHeight; // 自動滾動到聊天框底部
+    }
 }
 
+// 在chatBox頂部添加更舊的訊息（上一頁）
+function prependMessage(sender, senderId, message, createAt, messageId) {
+    let chatBox = document.getElementById("chatBox");
+    if (document.querySelector(`[data-msg-id="${messageId}"]`)) {
+        return; // 如果消息已存在,直接返回,不重複渲染
+    }
+
+    const newMessage = document.createElement('div');
+    newMessage.classList.add('message');
+    newMessage.setAttribute('data-msg-id', messageId);
+
+    // 訊息內容容器
+    const messageContentWrapper = document.createElement('div');
+    messageContentWrapper.classList.add('message-content');
+
+    // 訊息內容
+    const messageContent = document.createElement('p');
+    messageContent.textContent = message;
+    // 格式化時間
+    const messageTimeText = formatTimeToAMPM(convertUTC0ToUTC8(createAt));
+
+    // 訊息發送時間
+    const messageTime = document.createElement('small');
+    messageTime.textContent = messageTimeText;
+
+    if (senderId === currentUserId) {
+        newMessage.classList.add('sender');
+        messageContentWrapper.classList.add('sender-bg');
+    } else {
+        newMessage.classList.add('receiver');
+        messageContentWrapper.classList.add('receiver-bg');
+    }
+
+    messageContentWrapper.appendChild(messageContent);
+    newMessage.appendChild(messageContentWrapper);
+    newMessage.appendChild(messageTime);
+
+    // 在聊天框頂部插入訊息
+    chatBox.prepend(newMessage);
+}
+
+// 初始化聊天視窗，監聽滾動事件
+function initializeChatWindow() {
+    const chatBox = document.getElementById('chatBox');
+    chatBox.addEventListener('scroll', function () {
+        if (chatBox.scrollTop === 0 && !isLoading && hasLastPage) {
+            const chatRoomId = document.getElementById('chatReceiver').getAttribute('data-chatroom-id');
+            const previousHeight = chatBox.scrollHeight;
+            loadChatHistory(chatRoomId, lastCreateAt).then(() => {
+                chatBox.scrollTop = chatBox.scrollHeight - previousHeight;
+            });
+        }
+    });
+}
 
 // 加載聊天歷史消息
-function loadChatHistory(chatRoomId) {
-    fetch(`/api/chat/chatroom/history?chatRoomId=${chatRoomId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (Array.isArray(data)) {
-                data.forEach(message => {
-                    showMessage(message.senderName, message.senderId, message.content, message.createAt);
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error loading chat history:', error);
-        });
+function loadChatHistory(chatRoomId, lastCreateAtParam = null) {
+    return new Promise((resolve, reject) => {
+        if (isLoading || !hasLastPage) {
+            resolve();
+            return;
+        }
+        isLoading = true;
+        let url = `/api/chat/chatroom/history?chatRoomId=${chatRoomId}`;
+        if (lastCreateAtParam) {
+            url += `&lastCreateAt=${encodeURIComponent(lastCreateAtParam)}`;
+        }
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const messages = data.chatMessages;
+                hasLastPage = data.hasLastPage;
+                if (messages.length > 0) {
+                    const chatBox = document.getElementById('chatBox');
+                    if (lastCreateAtParam) {
+                        // 載入更舊的訊息
+                        const previousHeight = chatBox.scrollHeight;
+                        messages.reverse().forEach(message => {
+                            prependMessage(message.senderName, message.senderId, message.content, message.createAt, message.id);
+                        });
+                        chatBox.scrollTop = chatBox.scrollHeight - previousHeight;
+                    } else {
+                        // 初次載入
+                        messages.forEach(message => {
+                            showMessage(message.senderName, message.senderId, message.content, message.createAt, message.id, false);
+                        });
+                        // 滾動到聊天框底部
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    }
+                    lastCreateAt = messages[0].createAt;
+                }
+                isLoading = false;
+                resolve();
+            })
+            .catch(error => {
+                console.error('Error loading chat history:', error);
+                isLoading = false;
+                reject(error);
+            });
+    });
 }
 
 // 發送訊息
@@ -257,8 +357,6 @@ function sendMessage() {
     const chatRoomId = document.getElementById('chatReceiver').getAttribute('data-chatroom-id');
     const receiverId = document.getElementById('chatReceiver').getAttribute('data-receiver-id');  // 取得 receiverId
     const receiverName = document.getElementById('chatReceiver').innerText;  // 取得 receiverName
-    console.log('sendMessage - receiverId:', receiverId);
-    console.log('sendMessage - receiverName:', receiverName);
     if (messageContent.trim() !== "") {
         const chatMessage = {
             chatRoomId: chatRoomId,
@@ -285,7 +383,6 @@ function showFriend(userProfile) {
         const friendDiv = document.createElement('div');
         friendDiv.classList.add('friends');
         friendDiv.setAttribute('data-user-id', userProfile.userId);
-        console.log('userProfile', userProfile);
         friendDiv.innerHTML = `
             <img src="${userProfile.photo}" alt="${userProfile.username}" class="friend-avatar" onerror="this.src='${defaultUserPhoto}';">
             <span class="friend-name">${userProfile.username}</span>
@@ -297,7 +394,6 @@ function showFriend(userProfile) {
             const receiverName = userProfile.username;
 
             checkChatRoom(receiverId).then(chatRoomId => {
-                console.log('checkChatRoom chatRoomId: ', chatRoomId);
                 openChatWindow(receiverId, chatRoomId);
             });
         });

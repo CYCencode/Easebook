@@ -1,5 +1,6 @@
 package evelyn.site.socialmedia.util;
 
+import evelyn.site.socialmedia.model.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.RedisConnectionFailureException;
@@ -17,10 +18,8 @@ public class CacheUtil {
     public <V> void addMessageToCache(String key, V value, int messageLimit) {
         try {
             redisTemplate.opsForList().rightPush(key, value);
-            //redisTemplate.opsForList().trim(key, 0, messageLimit-1);
-            // 取最尾端的30筆資料... 最新的30筆
-            redisTemplate.opsForList().trim(key, -messageLimit, -1);
-            log.info("Update cache for key:{} with value:{}", key, value);
+            // 截斷，保留最新的 messageLimit + 1 筆訊息
+            redisTemplate.opsForList().trim(key, -(messageLimit + 1), -1);
         } catch (RedisConnectionFailureException e) {
             log.error("Redis connection failed while updating cache: {}", key, e);
             // 快取更新失敗，將快取清除以維持資料一致性
@@ -28,7 +27,18 @@ public class CacheUtil {
         }
     }
 
-    // 獲取快取中的訊息
+    public <V> void addMessagesToCache(String key, List<V> messages, int messageLimit) {
+        try {
+            redisTemplate.opsForList().rightPushAll(key, messages.toArray(new ChatMessage[0]));
+            // 截斷，保留最新的 messageLimit + 1 筆訊息
+            redisTemplate.opsForList().trim(key, -(messageLimit + 1), -1);
+            List<Object> cachedMessages = redisTemplate.opsForList().range(key, 0, -1);
+        } catch (RedisConnectionFailureException e) {
+            log.error("Redis connection failed while adding messages to cache: {}", key, e);
+            delete(key);
+        }
+    }
+
     public <V> List<V> getMessagesFromCache(String key) {
         try {
             log.info("Fetching messages from cache key:{}", key);
