@@ -226,7 +226,7 @@ public class PostServiceImpl implements PostService {
             posts.remove(posts.size() - 1);
         }
 
-        // 4. 轉換並返回 DTO
+        // 5. 轉換並 return
         Map<String, Object> result = new HashMap<>();
         result.put("posts", posts);
         result.put("hasMore", hasMore);
@@ -293,7 +293,7 @@ public class PostServiceImpl implements PostService {
         return responseDTO;
     }
 
-    // for get method , add liked statement
+    // 依據currentUser 是否在按讚者清單中，設定 liked 屬性
     private PostResponseDTO convertToResponseDTO(Post post, String currentUserId) {
         PostResponseDTO responseDTO = new PostResponseDTO();
         responseDTO.setPostId(post.getPostId());
@@ -310,7 +310,7 @@ public class PostServiceImpl implements PostService {
         // 檢查當前使用者是否已經按讚
         boolean liked = post.getThumbUsers().stream()
                 .anyMatch(thumb -> thumb.getUserId().equals(currentUserId));
-        responseDTO.setLiked(liked); // 添加 liked 屬性
+        responseDTO.setLiked(liked); // 設定 liked 屬性
 
         if (post.getComments() != null && !post.getComments().isEmpty()) {
             responseDTO.setComments(new ArrayList<>(post.getComments()));
@@ -386,14 +386,14 @@ public class PostServiceImpl implements PostService {
             }
             // 設定 comment id
             comment.setId(UUIDGenerator.generateUUID());
-            // 添加新的留言到 comments 列表中
+            // 把新的留言加到 comments 列表中
             comments.add(comment);
             post.setComments(comments);
             // 更新留言數量
             post.setReplyCount(post.getReplyCount() + 1);
             // 保存更新後的貼文
             Post updatedPost = postRepository.save(post);
-            // 返回更新後的 PostResponseDTO
+            // 回傳更新後的 PostResponseDTO
             return convertToResponseDTO(updatedPost);
 
         } else {

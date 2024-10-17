@@ -14,7 +14,7 @@ function displayNewMessages() {
     const messageNotificationList = document.getElementById('messageNotificationList');
     messageNotificationList.innerHTML = ''; // 清空現有的內容
 
-    // 先將 newMessages 轉換為一個可以排序的數組
+    // 先將 newMessages 轉換為一個可以排序的 array
     const sortedMessages = Object.values(newMessages).sort((a, b) => {
         return new Date(b.createAt) - new Date(a.createAt);  // 按照 createAt 由大到小排序
     });
