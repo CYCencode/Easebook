@@ -63,7 +63,7 @@ function initializeChat() {
         .catch(error => console.error('Error:', error))
 
     // 初始化載入訊息通知
-    fetch(`/api/chat/chat-request?userId=${currentUserId}`)
+    fetchWithJwt(`/api/chat/chat-request?userId=${currentUserId}`)
         .then(response => response.json())
         .then(chatNotify => {
             chatNotify.forEach(notify => displayChatNotify(notify));

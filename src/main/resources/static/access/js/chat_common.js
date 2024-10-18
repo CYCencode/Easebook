@@ -50,7 +50,7 @@ function displayNewMessages() {
         messageItem.addEventListener('click', function () {
             openChatWindow(notification.senderId, notification.chatRoomId);
             // 更新訊息已讀狀態
-            fetch(`/api/chat/chat-request/`, {
+            fetchWithJwt(`/api/chat/chat-request/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -151,7 +151,7 @@ function displayChatSearchResult(users) {
 
 // 檢查聊天室是否存在，若無則生成
 function checkChatRoom(receiverId) {
-    return fetch(`/api/chat/chatroom?user1=${currentUserId}&user2=${receiverId}`)
+    return fetchWithJwt(`/api/chat/chatroom?user1=${currentUserId}&user2=${receiverId}`)
         .then(response => response.json())
         .then(data => {
             return data.chatRoomId;
@@ -316,7 +316,7 @@ function loadChatHistory(chatRoomId, lastCreateAtParam = null) {
             url += `&lastCreateAt=${encodeURIComponent(lastCreateAtParam)}`;
         }
 
-        fetch(url)
+        fetchWithJwt(url)
             .then(response => response.json())
             .then(data => {
                 const messages = data.chatMessages;

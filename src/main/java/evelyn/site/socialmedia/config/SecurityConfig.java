@@ -20,7 +20,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/ws/**", "/login.html").permitAll()// WebSocket 無需認證
-                        .requestMatchers("/api/users/me", "/api/users/search/**", "/api/users/friend", "/api/profile/**", "/api/posts/**").authenticated()
+                        .requestMatchers("/api/users/me", "/api/users/search/**",
+                                "/api/chat/**",
+                                "/api/users/friend", "/api/profile/**", "/api/posts/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex
