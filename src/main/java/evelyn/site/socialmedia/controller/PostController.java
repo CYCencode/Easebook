@@ -24,10 +24,10 @@ public class PostController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createPost(@ModelAttribute PostRequestDTO postRequestDTO) {
         try {
-            // 1. check if content, file are valid
+            // 1. 檢查上傳的檔案大小、貼文文字長度是否符合
             postService.validatePost(postRequestDTO);
             log.info("get PostRequestDTO {}", postRequestDTO);
-            // 2. create post
+            // 2. 把貼文存進資料庫
             PostResponseDTO createdPost = postService.createPost(postRequestDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
         } catch (IllegalArgumentException e) {

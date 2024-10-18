@@ -1,12 +1,12 @@
 package evelyn.site.socialmedia.service;
 
 import evelyn.site.socialmedia.dto.ChatMessageDTO;
+import evelyn.site.socialmedia.enums.MessagePagingLimit;
 import evelyn.site.socialmedia.model.ChatMessage;
 import evelyn.site.socialmedia.repository.ChatMessageRepository;
 import evelyn.site.socialmedia.util.CacheUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -22,8 +22,7 @@ import java.util.List;
 @Log4j2
 public class ChatMessageServiceImpl implements ChatMessageService {
 
-    @Value("${chat.message.limit:30}")
-    private int messageLimit;
+    private final int messageLimit = MessagePagingLimit.LIMIT.getLimit();
     private final CacheUtil cacheUtil;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatNotifyService chatNotifyService;
