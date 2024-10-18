@@ -70,7 +70,7 @@ function fetchProfileData(userId) {
 
 // 取得好友關係狀態
 function fetchFriendshipStatus(currentUserId, profileUserId) {
-    return fetch(`/api/users/search/friendship?userId=${profileUserId}&currentUserId=${currentUserId}`)
+    return fetchWithJwt(`/api/users/search/friendship?userId=${profileUserId}&currentUserId=${currentUserId}`)
         .then(response => response.json())
         .then(data => {
             return data;

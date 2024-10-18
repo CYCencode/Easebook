@@ -4,13 +4,13 @@ let commentFlag = false;
 
 /* 以名字搜尋用戶 : 開聊天室、加好友 */
 function fetchUsers(username, currentUserId) {
-    return fetch(`/api/users/search?username=${username}&currentUserId=${currentUserId}`)
+    return fetchWithJwt(`/api/users/search?username=${username}&currentUserId=${currentUserId}`)
         .then(response => response.json())
         .catch(error => console.error('Error fetching users:', error));
 }
 
 function fetchFriends(username, currnetUserId) {
-    return fetch(`/api/users/search/friends?username=${username}&currentUserId=${currentUserId}`)
+    return fetchWithJwt(`/api/users/search/friends?username=${username}&currentUserId=${currentUserId}`)
         .then(response => response.json())
         .catch(error => console.error('Error fetching users:', error));
 }

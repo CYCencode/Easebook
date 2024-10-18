@@ -55,7 +55,7 @@ function initializeChat() {
     });
 
     // 初始化載入好友區域
-    fetch(`/api/users/friend?userId=${currentUserId}`)
+    fetchWithJwt(`/api/users/friend?userId=${currentUserId}`)
         .then(response => response.json())
         .then(friendProfile => {
             friendProfile.forEach(profile => showFriend(profile));
