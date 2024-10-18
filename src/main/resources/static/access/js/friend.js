@@ -69,38 +69,6 @@ function displayFriendSearchResult(users) {
 }
 
 // 送出好友邀請
-// function sendFriendRequest(receiverId, receiverName) {
-//     const friendRequest = {
-//         senderId: currentUserId,
-//         senderName: localStorage.getItem('currentUser'),
-//         receiverId: receiverId,
-//         receiverName: receiverName,
-//         createAt: getCurrentUTCTime(), // 獲取當前 UTC 時間
-//         senderAvatar: document.getElementById('currentUserAvatar').src
-//     };
-//
-//     fetch('/api/friend-requests', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify(friendRequest)
-//     })
-//         .then(response => {
-//             if (!response.ok) {
-//                 throw new Error('無法送出好友邀請，請重試');
-//             }
-//             return response.json();
-//         })
-//         .then(friendRequestDTO => {
-//             console.log('friend request post response.json:', friendRequestDTO);
-//             alert('好友邀請已送出');
-//             stompClient.send("/app/notify/friend", {}, JSON.stringify(friendRequestDTO));  // 通知接收者
-//         })
-//         .catch(error => console.error('Error sending friend request:', error));
-// }
-
-// 送出好友邀請
 function sendFriendRequest(receiverId, receiverName) {
     const friendRequest = {
         senderId: currentUserId,
@@ -111,7 +79,7 @@ function sendFriendRequest(receiverId, receiverName) {
         senderAvatar: document.getElementById('currentUserAvatar').src
     };
 
-    return fetch('/api/friend-requests', {
+    return fetchWithJwt('/api/friend-requests', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -196,7 +164,7 @@ function updateNotificationCount(change) {
 }
 
 function replyToFriendRequest(id, senderId, accept) {
-    return fetch(`/api/friend-requests/reply?request_id=${id}&senderId=${senderId}&receiverId=${currentUserId}&accept=${accept}`, {
+    return fetchWithJwt(`/api/friend-requests/reply?request_id=${id}&senderId=${senderId}&receiverId=${currentUserId}&accept=${accept}`, {
         method: 'POST'
     })
         .then(response => {
@@ -297,7 +265,7 @@ function initializeFriend() {
     });
 
     // 載入好友通知
-    fetch(`/api/friend-requests?userId=${currentUserId}`)
+    fetchWithJwt(`/api/friend-requests?userId=${currentUserId}`)
         .then(response => response.json())
         .then(friendRequests => {
             friendRequests.forEach(friendRequest => addFriendNotification(friendRequest));

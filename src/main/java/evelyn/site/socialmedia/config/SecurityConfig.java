@@ -21,7 +21,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/ws/**", "/login.html").permitAll()// WebSocket 無需認證
                         .requestMatchers("/api/users/me", "/api/users/search/**",
-                                "/api/chat/**",
+                                "/api/chat/**", "/api/friend-requests/**",
                                 "/api/users/friend", "/api/profile/**", "/api/posts/**").authenticated()
                         .anyRequest().permitAll()
                 )
