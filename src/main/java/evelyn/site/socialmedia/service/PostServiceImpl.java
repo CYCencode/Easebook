@@ -82,7 +82,7 @@ public class PostServiceImpl implements PostService {
 
         Post savedPost = postRepository.save(post);
         userPostRepository.save(post);
-        return convertToResponseDTO(savedPost);
+        return convertToResponseDTO(savedPost, null);
     }
 
     @Override
@@ -154,7 +154,7 @@ public class PostServiceImpl implements PostService {
             });
             log.info("Post updated, optionalPost: {}", optionalPost.get());
             // 回傳更新後的貼文資訊
-            return convertToResponseDTO(optionalPost.get());
+            return convertToResponseDTO(optionalPost.get(), null);
         } catch (RuntimeException e) {
             log.error("Failed to update post", e);
             throw e;
@@ -220,7 +220,7 @@ public class PostServiceImpl implements PostService {
         int pageSize = Integer.parseInt(limit) + 1; //多取一筆判斷是否還有更多資料
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "createAt"));
 
-        Page<Post> postPage = postRepository.findByUserIdAndStatus(userId, 0, pageable);
+        Page<Post> postPage = postRepository.findByUserIdAndStatus(userId, PostStatus.ACTIVE.getValue(), pageable);
 
         // 轉換為 PostResponseDTO，paging 並根據 userId 判斷 liked 屬性
         List<PostResponseDTO> posts = postPage.getContent().stream()
@@ -248,28 +248,6 @@ public class PostServiceImpl implements PostService {
         postRepository.save(post);
     }
 
-    private PostResponseDTO convertToResponseDTO(Post post) {
-        PostResponseDTO responseDTO = new PostResponseDTO();
-        responseDTO.setPostId(post.getPostId());
-        responseDTO.setUserId(post.getUserId());
-        responseDTO.setUserName(post.getUserName());
-        responseDTO.setUserPhoto(post.getUserPhoto());
-        responseDTO.setContent(post.getContent());
-        responseDTO.setImages(post.getImages());
-        responseDTO.setVideos(post.getVideos());
-        responseDTO.setThumbUsers(post.getThumbUsers());
-        responseDTO.setThumbsCount(post.getThumbsCount());
-        responseDTO.setReplyCount(post.getReplyCount());
-        responseDTO.setCreateAt(post.getCreateAt());
-
-        if (post.getComments() != null && !post.getComments().isEmpty()) {
-            responseDTO.setComments(new ArrayList<>(post.getComments())); // 將 List<Comment> 傳給 DTO
-        } else {
-            responseDTO.setComments(new ArrayList<>()); // 如果 comments 為 null 或空，回傳空 list
-        }
-        return responseDTO;
-    }
-
     // 依據currentUser 是否在按讚者清單中，設定 liked 屬性
     private PostResponseDTO convertToResponseDTO(Post post, String currentUserId) {
         PostResponseDTO responseDTO = new PostResponseDTO();
@@ -285,14 +263,16 @@ public class PostServiceImpl implements PostService {
         responseDTO.setReplyCount(post.getReplyCount());
         responseDTO.setCreateAt(post.getCreateAt());
         // 檢查當前使用者是否已經按讚
-        boolean liked = post.getThumbUsers().stream()
-                .anyMatch(thumb -> thumb.getUserId().equals(currentUserId));
-        responseDTO.setLiked(liked); // 設定 liked 屬性
+        if (currentUserId != null) {
+            boolean liked = post.getThumbUsers().stream()
+                    .anyMatch(thumb -> thumb.getUserId().equals(currentUserId));
+            responseDTO.setLiked(liked); // 設定 liked 屬性
+        }
 
         if (post.getComments() != null && !post.getComments().isEmpty()) {
-            responseDTO.setComments(new ArrayList<>(post.getComments()));
+            responseDTO.setComments(new ArrayList<>(post.getComments())); // 將 List<Comment> 傳給 DTO
         } else {
-            responseDTO.setComments(new ArrayList<>());
+            responseDTO.setComments(new ArrayList<>()); // 如果 comments 為 null 或空，回傳空 list
         }
         return responseDTO;
     }
@@ -319,7 +299,7 @@ public class PostServiceImpl implements PostService {
                 liked = true;
             }
             // 查詢並返回更新後的貼文
-            PostResponseDTO updatedPost = convertToResponseDTO(postRepository.findByPostId(postId).orElseThrow(() -> new RuntimeException("Post not found after update")));
+            PostResponseDTO updatedPost = convertToResponseDTO(postRepository.findByPostId(postId).orElseThrow(() -> new RuntimeException("Post not found after update")), null);
             updatedPost.setLiked(liked);
             return updatedPost;
 
@@ -371,7 +351,7 @@ public class PostServiceImpl implements PostService {
             // 保存更新後的貼文
             Post updatedPost = postRepository.save(post);
             // 回傳更新後的 PostResponseDTO
-            return convertToResponseDTO(updatedPost);
+            return convertToResponseDTO(updatedPost, null);
 
         } else {
             throw new RuntimeException("Post not found");
@@ -392,7 +372,7 @@ public class PostServiceImpl implements PostService {
                         existingComment.setContent(comment.getContent());
                         // 保存更新後的貼文
                         postRepository.save(post);
-                        return convertToResponseDTO(post);
+                        return convertToResponseDTO(post, null);
                     }
                 }
             }
@@ -414,7 +394,7 @@ public class PostServiceImpl implements PostService {
                 if (removed) {
                     post.setReplyCount(post.getReplyCount() - 1);
                     postRepository.save(post);
-                    return convertToResponseDTO(post);
+                    return convertToResponseDTO(post, null);
                 }
             }
             throw new RuntimeException("Comment not found");
