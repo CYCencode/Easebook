@@ -174,7 +174,7 @@ public class NotifyServiceImpl implements NotifyService {
         }
     }
 
-    // 新增一方法，將通知傳給receiver
+    // 在個人資訊更新後，通知上顯示的資訊也要更新
     @Override
     public void notifyFriendRequestUpdate(String receiverId, FriendRequestDTO friendRequestDTO) {
         messagingTemplate.convertAndSendToUser(

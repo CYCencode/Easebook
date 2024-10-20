@@ -38,10 +38,6 @@ public class S3Service {
         return uuidFileName;
     }
 
-    //    public String getFileUrl(String fileName) {
-//        URL url = s3Client.utilities().getUrl(builder -> builder.bucket(bucketName).key(fileName));
-//        return url.toString();
-//    }
     public String getFileUrl(String fileName) {
         // 使用 CloudFront 的 URL 代替 S3 URL
         return cloudFrontDomain + "/" + fileName;
