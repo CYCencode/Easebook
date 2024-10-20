@@ -1,11 +1,10 @@
 let stompClient;
 const defaultUserPhoto = 'https://eve-social-media.s3.ap-northeast-1.amazonaws.com/account.png';
 const defaultCoverPhoto = 'https://eve-social-media.s3.ap-northeast-1.amazonaws.com/coverphoto.jpg'
-// Initialize global variables
+// 初始化全域變數
 let currentUserId = localStorage.getItem('currentUserId');
 let currentUser = localStorage.getItem('currentUser');
 let jwtToken = localStorage.getItem('jwtToken');
-// Ensure variables are globally accessible
 window.currentUserId = currentUserId;
 window.currentUser = currentUser;
 window.jwtToken = jwtToken;
@@ -332,22 +331,22 @@ function connect(isPost) {
     });
 }
 
-// Initialize the application
+// 初始化 app
 async function initializeApp(isPost) {
     try {
         if (checkJwtToken()) {
-            // Fetch user data
+            // 獲得用戶的資料
             const userData = await fetchWithJwt('/api/users/me', {method: 'GET'}).then(res => res.json());
             currentUser = userData.name;
             currentUserId = userData.id;
             localStorage.setItem('currentUserId', currentUserId);
             localStorage.setItem('currentUser', currentUser);
 
-            // Update global variables
+            // 更新全域變數
             window.currentUser = currentUser;
             window.currentUserId = currentUserId;
             if (isPost) {
-                // Initialize  modules
+                // 初始化各 js 模組
                 if (typeof initializePosts === 'function') {
                     initializePosts();
                 }

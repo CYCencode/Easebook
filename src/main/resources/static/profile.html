@@ -15,20 +15,15 @@
 </head>
 <body>
 <div class="container-fluid p-0">
-    <!-- Cover Photo -->
     <div class="cover-photo-container">
         <img id="coverPhoto" class="img-fluid w-100" alt="封面照片" src="">
     </div>
-
-    <!-- Profile Info Section -->
     <div class="container mt-3">
         <div class="row">
-            <!-- Profile Photo and Name -->
             <div class="col-md-8 d-flex align-items-center">
                 <img id="currentUserAvatar" class="profile-photo rounded-circle" alt="個人照片" src="">
                 <h2 id="username" class="ms-3"></h2>
             </div>
-            <!-- Action Buttons -->
             <div class="col-md-4 text-end" id="actionButtonsContainer">
                 <!-- 回到貼文牆按鈕 -->
                 <button id="backToPostsButton" class="btn btn-primary me-2" onclick="location.href='post.html'">
@@ -38,10 +33,7 @@
                 </button>
             </div>
         </div>
-
-        <!-- Bio and Posts -->
         <div class="row mt-4">
-            <!-- Bio and Personal Info -->
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
@@ -56,13 +48,11 @@
                     </div>
                 </div>
             </div>
-            <!-- User Posts -->
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">過去的貼文</h5>
                         <div id="posts">
-                            <!-- Posts will be dynamically added here -->
                         </div>
                     </div>
                 </div>
@@ -71,7 +61,6 @@
     </div>
 </div>
 
-<!-- Edit Profile Form Modal -->
 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

@@ -332,7 +332,6 @@ function loadPosts(userId, page, limit) {
             const hasMore = data.hasMore;
 
             if (posts.length > 0) {
-                // TODO : descending bug
                 posts.forEach(post => displayPost(post, prepend = false)); // 顯示貼文
             }
             // 更新 hasMorePosts 狀態

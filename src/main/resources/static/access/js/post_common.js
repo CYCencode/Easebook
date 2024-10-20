@@ -191,11 +191,11 @@ function showEditPostForm(post) {
         `;
                     document.body.appendChild(editFormModal);
                 }
-                // **更新文字區域的內容**
+                // 更新文字區域的內容
                 const editPostContent = editFormModal.querySelector('#editPostContent');
                 editPostContent.value = post.content;
 
-                // **清空並重新載入預覽區域**
+                // 清空並重新載入預覽區域
                 const previewContainer = editFormModal.querySelector('#editPreviewContainer');
 
                 previewContainer.innerHTML = '';
@@ -250,8 +250,7 @@ function showEditPostForm(post) {
                     previewContainer.appendChild(previewItem);
                 });
 
-                // **在新增事件監聽器之前，先移除已存在的監聽器**
-
+                // 在新增事件監聽器之前，先移除已存在的監聽器
                 // 更新按鈕
                 const updatePostButton = document.getElementById('updatePostButton');
                 const newUpdatePostButton = updatePostButton.cloneNode(true);
@@ -378,7 +377,7 @@ function showPostDetails(postId) {
 
                     // 關閉按鈕邏輯
                     modal.querySelector('.close-button').addEventListener('click', () => {
-                        modal.style.display = 'none'; // 隱藏模態框
+                        modal.style.display = 'none';
                     });
 
                     document.body.appendChild(modal);
@@ -386,12 +385,12 @@ function showPostDetails(postId) {
 
                 // 使用前面的函數生成貼文標題、內容、按讚數和留言數
                 const postHeader = modal.querySelector('.post-header');
-                postHeader.innerHTML = ''; // 清空之前的內容
+                postHeader.innerHTML = '';
                 const {headerDiv} = createPostHeader(post);
                 postHeader.appendChild(headerDiv);
 
                 const postBody = modal.querySelector('.post-body');
-                postBody.innerHTML = ''; // 清空之前的內容
+                postBody.innerHTML = '';
                 const content = createPostContent(post);
                 postBody.appendChild(content);
 
@@ -414,7 +413,6 @@ function showPostDetails(postId) {
                 const postComments = modal.querySelector('.post-comments');
                 renderComments(post.comments, postComments, null, post.postId);
 
-                // 顯示模態框
                 modal.style.display = 'block';
             })
             .catch(error => {
@@ -735,19 +733,6 @@ function notifyWebSocket(topic, updatedData) {
     stompClient.send(topic, {}, JSON.stringify(updatedData));
 }
 
-// async function likePost(postId, currentUserId, thumbsCountElement) {
-//     if (!validateJwtOrRedirect()) return;
-//
-//     const thumbInfo = {
-//         userId: currentUserId,
-//         userName: localStorage.getItem('currentUser'),
-//         avatarUrl: await loadUserPhoto(currentUserId)
-//     };
-//
-//     const updatedPost = await sendPostRequest(`/api/posts/${postId}/thumb`, thumbInfo);
-//     thumbsCountElement.textContent = `${updatedPost.thumbsCount}個讚`;
-//     notifyWebSocket(`/app/notify/thumb/update`, updatedPost);
-// }
 async function likePost(postId, currentUserId, thumbsCountElement) {
     if (!validateJwtOrRedirect()) return;
 
