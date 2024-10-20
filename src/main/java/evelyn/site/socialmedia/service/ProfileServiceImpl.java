@@ -1,6 +1,7 @@
 package evelyn.site.socialmedia.service;
 
 import evelyn.site.socialmedia.dto.*;
+import evelyn.site.socialmedia.enums.PostStatus;
 import evelyn.site.socialmedia.model.Comment;
 import evelyn.site.socialmedia.model.Post;
 import evelyn.site.socialmedia.model.UserProfile;
@@ -66,7 +67,7 @@ public class ProfileServiceImpl implements ProfileService {
             String photoUrl = s3Service.getFileUrl(photoName);
             userProfile.setPhoto(photoUrl);
             // 查詢post 資訊
-            List<Post> posts = postRepository.findByUserIdAndStatus(profileRequestDTO.getUserId(), "ACTIVE");
+            List<Post> posts = postRepository.findByUserIdAndStatus(profileRequestDTO.getUserId(), PostStatus.ACTIVE.getValue());
             // 更新每個 Post 的 userPhoto
             for (Post post : posts) {
                 post.setUserPhoto(photoUrl);
@@ -131,7 +132,7 @@ public class ProfileServiceImpl implements ProfileService {
             // 更新 users 表
             userRepository.updateName(profileRequestDTO);
             // 查詢post 資訊
-            List<Post> posts = postRepository.findByUserIdAndStatus(userId, "ACTIVE");
+            List<Post> posts = postRepository.findByUserIdAndStatus(userId, PostStatus.ACTIVE.getValue());
             // 更新每個 Post 的 userName
             for (Post post : posts) {
                 post.setUserName(newUserName);

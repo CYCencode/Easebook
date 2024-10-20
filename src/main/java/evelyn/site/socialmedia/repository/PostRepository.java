@@ -16,11 +16,11 @@ import java.util.Optional;
 public interface PostRepository extends MongoRepository<Post, String> {
 
     // 使用 Pageable 進行分頁查詢
-    Page<Post> findByUserIdInAndStatus(List<String> userIds, String status, Pageable pageable);
+    Page<Post> findByUserIdInAndStatus(List<String> userIds, int status, Pageable pageable);
 
-    Page<Post> findByUserIdAndStatus(String userId, String status, Pageable pageable);
+    Page<Post> findByUserIdAndStatus(String userId, int status, Pageable pageable);
 
-    List<Post> findByUserIdAndStatus(String userId, String status);
+    List<Post> findByUserIdAndStatus(String userId, int status);
 
     @Query("{ 'postId': ?0, 'status': 0 }")
     Optional<Post> findByPostId(String postId);

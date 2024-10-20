@@ -193,7 +193,7 @@ public class PostServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "createAt"));
 
         // 3. 查詢符合條件的貼文
-        Page<Post> postPage = postRepository.findByUserIdInAndStatus(friendIds, "ACTIVE", pageable);
+        Page<Post> postPage = postRepository.findByUserIdInAndStatus(friendIds, PostStatus.ACTIVE.getValue(), pageable);
 
         // 4. 轉換為 PostResponseDTO，paging 並根據 userId 判斷 liked 屬性
         List<PostResponseDTO> posts = postPage.getContent().stream()
@@ -220,7 +220,7 @@ public class PostServiceImpl implements PostService {
         int pageSize = Integer.parseInt(limit) + 1; //多取一筆判斷是否還有更多資料
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "createAt"));
 
-        Page<Post> postPage = postRepository.findByUserIdAndStatus(userId, "ACTIVE", pageable);
+        Page<Post> postPage = postRepository.findByUserIdAndStatus(userId, 0, pageable);
 
         // 轉換為 PostResponseDTO，paging 並根據 userId 判斷 liked 屬性
         List<PostResponseDTO> posts = postPage.getContent().stream()
