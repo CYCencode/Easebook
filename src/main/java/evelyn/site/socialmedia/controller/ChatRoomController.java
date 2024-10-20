@@ -24,29 +24,31 @@ public class ChatRoomController {
     private final ChatMessageService chatMessageService;
     private final ChatNotifyService chatNotifyService;
 
-    // 檢查或創建聊天室，並返回聊天室 ID
+    // 檢查或創建聊天室，並回傳聊天室 ID
     @GetMapping("/chatroom")
     public ResponseEntity<ChatRoomDTO> checkOrCreateChatRoom(@RequestParam String user1, @RequestParam String user2) {
         String chatRoomId = chatRoomService.getCreateChatRoomId(user1, user2);
         return ResponseEntity.ok(new ChatRoomDTO(chatRoomId));
     }
 
+    // 查詢聊天記錄
     @GetMapping("/chatroom/history")
     public ResponseEntity<ChatMessageDTO> getChatHistory(
             @RequestParam String chatRoomId,
             @RequestParam(required = false) String lastCreateAt) {
         Instant lastCreateAtInstant = lastCreateAt != null ? Instant.parse(lastCreateAt) : null;
         ChatMessageDTO chatMessageDTO = chatMessageService.getPagingMessagesByChatRoomId(chatRoomId, lastCreateAtInstant);
-        log.info("/chatroom/history  chatMessageDTO : {}", chatMessageDTO);
         return ResponseEntity.ok(chatMessageDTO);
     }
 
+    // 查詢最新的未讀訊息
     @GetMapping("/chat-request")
     public ResponseEntity<List<ChatNotify>> getChatRequests(@RequestParam("userId") String userId) {
         List<ChatNotify> requests = chatNotifyService.getChatRequests(userId);
         return ResponseEntity.ok(requests);
     }
 
+    // 更新訊息的已讀狀態
     @PostMapping("/chat-request/")
     public ResponseEntity<Void> updateChatRequestsStatus(@RequestBody ChatNotifyUpdateRequest request) {
         chatNotifyService.updateIsReadStatus(request.getChatRoomId(), request.getReceiverId());

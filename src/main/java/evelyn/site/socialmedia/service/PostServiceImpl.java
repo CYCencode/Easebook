@@ -2,11 +2,13 @@ package evelyn.site.socialmedia.service;
 
 import evelyn.site.socialmedia.dto.*;
 import evelyn.site.socialmedia.enums.InitCounts;
+import evelyn.site.socialmedia.enums.PostStatus;
 import evelyn.site.socialmedia.model.Comment;
 import evelyn.site.socialmedia.model.Post;
 import evelyn.site.socialmedia.repository.FriendRepository;
 import evelyn.site.socialmedia.repository.PostRepository;
 import evelyn.site.socialmedia.repository.UserPostRepository;
+import evelyn.site.socialmedia.util.PostValidationUtil;
 import evelyn.site.socialmedia.util.UUIDGenerator;
 import evelyn.site.socialmedia.util.UploadS3Util;
 import lombok.RequiredArgsConstructor;
@@ -36,29 +38,17 @@ public class PostServiceImpl implements PostService {
     @Override
     public void validatePost(PostRequestDTO postRequestDTO) {
         // 檢查文字長度
-        if (postRequestDTO.getContent() == null || postRequestDTO.getContent().length() > 1000) {
-            throw new IllegalArgumentException("文字長度不可超過1000字");
-        }
-        // 確保 images, videos 不為 null, 若為 null 則設為空列表
+        PostValidationUtil.validateContentLength(postRequestDTO.getContent());
+
+        // 檢查 images, videos 不為 null, 若為 null 則設為空列表
         List<MultipartFile> images = postRequestDTO.getImages() != null ? postRequestDTO.getImages() : Collections.emptyList();
         List<MultipartFile> videos = postRequestDTO.getVideos() != null ? postRequestDTO.getVideos() : Collections.emptyList();
 
         // 檢查圖片和影片數量
-        if (images.size() + videos.size() > 3) {
-            throw new IllegalArgumentException("最多只能上傳3張圖片或影片");
-        }
+        PostValidationUtil.validateMediaCount(images, videos, 0);
 
         // 檢查圖片和影片大小
-        for (MultipartFile image : images) {
-            if (image.getSize() > 2 * 1024 * 1024) { // 2MB
-                throw new IllegalArgumentException("圖片大小不可超過2MB");
-            }
-        }
-        for (MultipartFile video : videos) {
-            if (video.getSize() > 2 * 1024 * 1024) {
-                throw new IllegalArgumentException("影片大小不可超過2MB");
-            }
-        }
+        PostValidationUtil.validateMediaSize(images, videos);
     }
 
     @Override
@@ -98,31 +88,21 @@ public class PostServiceImpl implements PostService {
     @Override
     public void validateUpdatePost(UpdatePostRequestDTO updatePostRequestDTO) {
         // 檢查文字長度
-        if (updatePostRequestDTO.getContent() == null || updatePostRequestDTO.getContent().length() > 1000) {
-            throw new IllegalArgumentException("文字長度不可超過1000字");
-        }
-        // 確保 images, videos 不為 null, 若為 null 則設為空列表
+        PostValidationUtil.validateContentLength(updatePostRequestDTO.getContent());
+
+        // 檢查 images, videos 不為 null, 若為 null 則設為空列表
         List<MultipartFile> newImages = updatePostRequestDTO.getNewImages() != null ? updatePostRequestDTO.getNewImages() : Collections.emptyList();
         List<MultipartFile> newVideos = updatePostRequestDTO.getNewVideos() != null ? updatePostRequestDTO.getNewVideos() : Collections.emptyList();
-        // 計算原有的圖影片數量 : 注意是否會有null pointer 問題
-        int existCount = updatePostRequestDTO.getExistingImages().size() + updatePostRequestDTO.getExistingVideos().size();
 
-        // 檢查圖片和影片數量 : 檢查原有圖片與新增圖片的數量總計是否超過3張
-        if (existCount + newImages.size() + newVideos.size() > 3) {
-            throw new IllegalArgumentException("最多只能上傳3張圖片或影片");
-        }
+        // 計算原有的圖片和影片數量，避免 null pointer 問題
+        int existingCount = (updatePostRequestDTO.getExistingImages() != null ? updatePostRequestDTO.getExistingImages().size() : 0) +
+                (updatePostRequestDTO.getExistingVideos() != null ? updatePostRequestDTO.getExistingVideos().size() : 0);
+
+        // 檢查圖片和影片數量
+        PostValidationUtil.validateMediaCount(newImages, newVideos, existingCount);
 
         // 檢查圖片和影片大小
-        for (MultipartFile image : newImages) {
-            if (image.getSize() > 2 * 1024 * 1024) { // 2MB
-                throw new IllegalArgumentException("圖片大小不可超過2MB");
-            }
-        }
-        for (MultipartFile video : newVideos) {
-            if (video.getSize() > 2 * 1024 * 1024) {
-                throw new IllegalArgumentException("影片大小不可超過2MB");
-            }
-        }
+        PostValidationUtil.validateMediaSize(newImages, newVideos);
     }
 
     @Override
@@ -135,8 +115,7 @@ public class PostServiceImpl implements PostService {
                 // 保留用戶保留的舊圖片和影片
                 List<String> finalImages = new ArrayList<>(updatePostRequestDTO.getExistingImages());
                 List<String> finalVideos = new ArrayList<>(updatePostRequestDTO.getExistingVideos());
-                log.info("existing images: " + finalImages);
-                log.info("existing videos: " + finalVideos);
+
                 // 上傳新圖片並取得 URL
                 if (updatePostRequestDTO.getNewImages() != null && !updatePostRequestDTO.getNewImages().isEmpty()) {
                     try {
@@ -174,7 +153,7 @@ public class PostServiceImpl implements PostService {
                 throw new RuntimeException("Post not found");
             });
             log.info("Post updated, optionalPost: {}", optionalPost.get());
-            // 返回更新後的貼文資訊
+            // 回傳更新後的貼文資訊
             return convertToResponseDTO(optionalPost.get());
         } catch (RuntimeException e) {
             log.error("Failed to update post", e);
@@ -206,7 +185,7 @@ public class PostServiceImpl implements PostService {
                 .map(FriendDTO::getFriendId)
                 .collect(Collectors.toList());
 
-        // 自己的貼文也需要顯示
+        // 自己的貼文區也需要顯示
         friendIds.add(userId);
         // 2. 準備分頁資訊，注意 page 是從 0 開始計數的
         int pageNumber = Integer.parseInt(page);
@@ -230,7 +209,6 @@ public class PostServiceImpl implements PostService {
         Map<String, Object> result = new HashMap<>();
         result.put("posts", posts);
         result.put("hasMore", hasMore);
-        log.info("getPosts : {}", result);
         return result;
 
     }
@@ -256,7 +234,6 @@ public class PostServiceImpl implements PostService {
         Map<String, Object> result = new HashMap<>();
         result.put("posts", posts);
         result.put("hasMore", hasMore);
-        log.info("getPostByUserId : {}", result);
         return result;
     }
 
@@ -267,7 +244,7 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
         // 設置 status 為 "DELETED" 而非直接刪除
-        post.setStatus("DELETED");
+        post.setStatus(PostStatus.DELETED.getValue());
         postRepository.save(post);
     }
 
@@ -360,7 +337,7 @@ public class PostServiceImpl implements PostService {
         if (postOpt.isPresent()) {
             // 獲取該貼文中的 thumbUsers 並返回
             Post post = postOpt.get();
-            log.info("getThumbUser : {}", post);
+
             return post.getThumbUsers().stream()
                     .map(thumbUser -> ThumbUserDTO.builder()
                             .userId(thumbUser.getUserId())
@@ -379,14 +356,14 @@ public class PostServiceImpl implements PostService {
         Optional<Post> postOpt = postRepository.findByPostId(postId);
         if (postOpt.isPresent()) {
             Post post = postOpt.get();
-            // 獲取現有的 comments 列表，若不存在則初始化
+            // 獲取現有的 comments list，若不存在則初始化
             List<Comment> comments = post.getComments();
             if (comments == null) {
                 comments = new ArrayList<>();
             }
             // 設定 comment id
             comment.setId(UUIDGenerator.generateUUID());
-            // 把新的留言加到 comments 列表中
+            // 把新的留言加到 comments list 中
             comments.add(comment);
             post.setComments(comments);
             // 更新留言數量

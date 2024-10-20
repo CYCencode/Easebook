@@ -91,9 +91,9 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     @Override
     public void processChatMessage(ChatMessage chatMessage) {
         String chatRoomId = chatMessage.getChatRoomId();
-        // 保存消息到 MongoDB
+        // 保存訊息到 MongoDB
         saveMessage(chatMessage);
-        // 將消息發送到該私人聊天室
+        // 將訊息發送到該私人聊天室
         simpMessagingTemplate.convertAndSend("/chat/private/" + chatRoomId, chatMessage);
     }
 }

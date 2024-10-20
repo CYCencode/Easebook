@@ -50,19 +50,21 @@ public class NotifyController {
         notifyService.notifyFriendsOfThumbUpdate(postResponseDTO);
     }
 
+    // 留言更新
     @MessageMapping("/notify/comment/update")
     public void notifyFriendsOfCommentUpdate(@Payload PostResponseDTO postResponseDTO) {
         notifyService.notifyFriendsOfCommentUpdate(postResponseDTO);
     }
 
+    // 留言刪除
     @MessageMapping("/notify/comment/delete")
     public void notifyFriendsOfCommentDelete(@Payload PostResponseDTO postResponseDTO) {
         notifyService.notifyFriendsOfCommentDelete(postResponseDTO);
     }
 
+    // 貼文刪除
     @MessageMapping("/notify/post/delete")
     public void notifyFriendsOfPostDelete(@Payload PostResponseDTO postResponseDTO) {
-        log.info("notifyFriendsOfPostDelete {}", postResponseDTO);
         notifyService.notifyFriendsOfPostDelete(postResponseDTO);
     }
 
@@ -78,9 +80,9 @@ public class NotifyController {
         );
     }
 
+    // 好友邀請
     @MessageMapping("/notify/friend")
     public void notifyFriend(@Payload FriendRequestDTO friendRequestDTO) {
-        log.info("/notify/friend, {}", friendRequestDTO);
         messagingTemplate.convertAndSendToUser(
                 friendRequestDTO.getReceiverId(),
                 "/queue/notify/friend",

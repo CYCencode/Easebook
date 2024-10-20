@@ -19,7 +19,7 @@ public class ChatNotifyServiceImpl implements ChatNotifyService {
 
     @Override
     public void upsertChatNotify(ChatMessage chatMessage) {
-        // 1. 查詢是否已存在符合特定聊天室、收訊對象的紀錄
+        // 1. 查詢是否已存在符合特定聊天室、接收訊息對象的紀錄
         Optional<ChatNotify> existingNotify = chatNotifyRepository.findByChatRoomIdAndReceiverId(
                 chatMessage.getChatRoomId(), chatMessage.getReceiverId());
 

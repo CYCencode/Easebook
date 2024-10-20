@@ -1,6 +1,7 @@
 package evelyn.site.socialmedia.model;
 
 import evelyn.site.socialmedia.dto.ThumbUserDTO;
+import evelyn.site.socialmedia.enums.PostStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,5 +34,5 @@ public class Post {
     private int replyCount;
     private Instant createAt;
     private List<Comment> comments = new ArrayList<>();
-    private String status = "ACTIVE";
+    private int status = PostStatus.ACTIVE.getValue();
 }

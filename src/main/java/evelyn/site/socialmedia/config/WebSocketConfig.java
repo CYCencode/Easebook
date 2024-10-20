@@ -16,20 +16,19 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker( "/chat","/queue");
+        config.enableSimpleBroker("/chat", "/queue");
         config.setApplicationDestinationPrefixes("/app");
         config.setUserDestinationPrefix("/user");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // WebSocket endpoint for client connections
+        //  給 client 端連接的 webSocket endpoint
         registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        // Register WebSocketAuthInterceptor for inbound messages
         registration.interceptors(webSocketAuthInterceptor);
     }
 }

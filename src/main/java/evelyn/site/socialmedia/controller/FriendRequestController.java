@@ -26,7 +26,6 @@ public class FriendRequestController {
     @PostMapping("/friend-requests")
     public ResponseEntity<FriendRequestDTO> sendFriendRequest(@RequestBody FriendRequestDTO friendRequestDTO) {
         FriendRequestDTO requests = friendRequestService.sendFriendRequest(friendRequestDTO);
-        log.info("post /api/friend-requests: {}", requests);
         return ResponseEntity.ok(requests);
     }
 

@@ -26,7 +26,6 @@ public class PostController {
         try {
             // 1. 檢查上傳的檔案大小、貼文文字長度是否符合
             postService.validatePost(postRequestDTO);
-            log.info("get PostRequestDTO {}", postRequestDTO);
             // 2. 把貼文存進資料庫
             PostResponseDTO createdPost = postService.createPost(postRequestDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
@@ -68,12 +67,10 @@ public class PostController {
             @PathVariable String postId,
             @ModelAttribute UpdatePostRequestDTO updatePostRequestDTO) {
         try {
-            // 1. check if content, file are valid
+            // 1. 檢查更新的檔案大小、貼文文字長度是否符合
             postService.validateUpdatePost(updatePostRequestDTO);
-            // 2. update post since content is valid
+            // 2. 貼文更新
             PostResponseDTO updatedPost = postService.updatePost(postId, updatePostRequestDTO);
-            log.info("put PostRequestDTO {}", updatePostRequestDTO);
-            log.info("put request done, response updatedPost: {}", updatedPost);
             return ResponseEntity.ok(updatedPost);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -85,7 +82,7 @@ public class PostController {
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable String postId) {
         postService.deletePost(postId);
-        return ResponseEntity.noContent().build(); // return 204 No Content
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{postId}/thumb")

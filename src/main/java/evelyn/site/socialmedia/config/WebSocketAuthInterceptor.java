@@ -32,7 +32,6 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                     // 創建自定義的 Principal，使用 jwtToken
                     // 創建 Principal 並設置到 accessor
                     String userId = (String) jwtTokenProvider.getAllClaimsFromToken(jwtToken).get("id");
-                    //String userId = claims.get("id", String.class);
                     Principal userPrincipal = () -> userId;
                     accessor.setUser(userPrincipal);
 

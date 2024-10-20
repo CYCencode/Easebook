@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ChatNotifyRepository extends MongoRepository<ChatNotify, String> {
+    // 查找特定聊天室的通知
     Optional<ChatNotify> findByChatRoomIdAndReceiverId(String chatRoomId, String receiver);
 
     // 查找所有未讀且接收者為指定ID的通知

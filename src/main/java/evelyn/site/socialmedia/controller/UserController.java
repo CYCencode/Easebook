@@ -82,7 +82,7 @@ public class UserController {
         }
 
         try {
-            String jwt = authService.createUser(signupRequestDTO); // 返回 JWT 字串
+            String jwt = authService.createUser(signupRequestDTO); // 回傳 JWT 字串
             return ResponseEntity.ok(new JwtDTO(jwt, "註冊成功"));
         } catch (EmailAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new JwtDTO(null, e.getMessage())); // 信箱已存在，返回 403
@@ -99,8 +99,8 @@ public class UserController {
         }
 
         try {
-            String jwt = authService.loginUser(loginRequestDTO); // 返回 JWT 字串
-            return ResponseEntity.ok(new JwtDTO(jwt, "登入成功")); // 成功，返回 200 OK 與 JWT
+            String jwt = authService.loginUser(loginRequestDTO); // 回傳 JWT 字串
+            return ResponseEntity.ok(new JwtDTO(jwt, "登入成功")); // 成功，回傳 200 OK 與 JWT
         } catch (InvalidUserException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new JwtDTO(null, "用戶尚未註冊")); // Email 或密碼不正確，返回 403
         } catch (IllegalArgumentException e) {
@@ -140,7 +140,7 @@ public class UserController {
         userData.put("name", name);
         userData.put("id", id);
         log.info("/api/me userdata : {}", userData);
-        // 返回用戶的資料
+        // 回傳用戶的資料
         return ResponseEntity.ok(userData);
     }
 
