@@ -30,16 +30,16 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
-//    @Value("${spring.data.redis.password}")
-//    private String password;
-//
-//    @Value("${spring.data.redis.ssl.enabled}")
-//    private boolean sslEnabled;
+    @Value("${spring.data.redis.password}")
+    private String password;
+
+    @Value("${spring.data.redis.ssl.enabled}")
+    private boolean sslEnabled;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(host, port);
-//        redisStandaloneConfiguration.setPassword(password);
+        redisStandaloneConfiguration.setPassword(password);
 
         LettuceClientConfiguration.LettuceClientConfigurationBuilder clientConfigBuilder = LettuceClientConfiguration.builder()
                 .commandTimeout(Duration.ofSeconds(2))
@@ -48,9 +48,9 @@ public class RedisConfig {
                         .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
                         .build());
 
-//        if (sslEnabled) {
-//            clientConfigBuilder.useSsl();  // 啟用 SSL
-//        }
+        if (sslEnabled) {
+            clientConfigBuilder.useSsl();  // 啟用 SSL
+        }
 
         LettuceClientConfiguration clientConfig = clientConfigBuilder.build();
         return new LettuceConnectionFactory(redisStandaloneConfiguration, clientConfig);
