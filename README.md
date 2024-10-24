@@ -3,7 +3,7 @@ A real-time social media platform built with WebSocket, enabling friend connecti
 Includes private chat for real-time communication.
 ## Architecture
 ![架構圖](./images/EaseBook_架構圖.png)
-## Test Account ＆Ｗebsite 
+## Ｗebsite & How to use 
 * Ｗebsite     
 https://eveencode.com
 
