@@ -59,12 +59,34 @@
             border-color: #545b62;
         }
 
-        .intro-text {
+        .quick-login-text {
             text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
+            margin: 20px 0 10px;
             color: #6c757d;
+            font-size: 14px;
         }
+
+        .quick-login-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .quick-login-btn {
+            flex: 1;
+            background-color: #4267B2;
+            border: 1px solid #4267B2;
+            color: #ffffff;
+            padding: 8px 0;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .quick-login-btn:hover {
+            background-color: #385899;
+            border-color: #385899;
+        }
+
     </style>
 </head>
 <body>
@@ -84,6 +106,13 @@
                 <button class="btn btn-secondary btn-signup" data-bs-toggle="modal" data-bs-target="#signupModal">
                     創建新帳號
                 </button>
+                <div class="quick-login-text">
+                    免註冊，快速瀏覽
+                </div>
+                <div class="quick-login-buttons">
+                    <button id="evelynBtn" class="quick-login-btn">Eve</button>
+                    <button id="cindyBtn" class="quick-login-btn">Cindy</button>
+                </div>
             </div>
         </div>
         <div class="col-md-7 right-side">
@@ -175,6 +204,56 @@
             })
             .catch(error => {
                 alert('註冊失敗: ' + error.message);
+                console.error('Error:', error);
+            });
+    });
+    // 免註冊，快速登入
+    // 快速瀏覽 - Evelyn
+    document.getElementById('evelynBtn').addEventListener('click', function () {
+        const email = 'eve@gmail.com';
+        const password = 'eveeve';
+
+        fetch('/api/users/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: email, password: password}),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.token) {
+                    localStorage.setItem('jwtToken', data.token);
+                    loadPostPage();
+                } else {
+                    throw new Error(data.message || '登入失敗');
+                }
+            })
+            .catch(error => {
+                alert('登入失敗: ' + error.message);
+                console.error('Error:', error);
+            });
+    });
+
+    // 快速瀏覽 - Cindy
+    document.getElementById('cindyBtn').addEventListener('click', function () {
+        const email = 'money@gmail.com';
+        const password = 'homoney';
+
+        fetch('/api/users/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: email, password: password}),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.token) {
+                    localStorage.setItem('jwtToken', data.token);
+                    loadPostPage();
+                } else {
+                    throw new Error(data.message || '登入失敗');
+                }
+            })
+            .catch(error => {
+                alert('登入失敗: ' + error.message);
                 console.error('Error:', error);
             });
     });
